@@ -1,0 +1,86 @@
+### ============================================================
+### Pruebas Flowable REST – Peluditos Pet Chile (Entrega 1)
+### Usar con la extensión "REST Client" de VS Code (botón "Send Request")
+### ============================================================
+@baseUrl = http://localhost:8080/flowable-rest
+# rest-admin:test en Base64
+@authorization = Basic cmVzdC1hZG1pbjp0ZXN0
+
+### 1) ¿Está vivo el motor?
+GET {{baseUrl}}/service/management/engine
+Authorization: {{authorization}}
+Accept: application/json
+
+### 2) Desplegar el BPMN mínimo
+POST {{baseUrl}}/service/repository/deployments
+Authorization: {{authorization}}
+Content-Type: multipart/form-data; boundary=----Boundary
+
+------Boundary
+Content-Disposition: form-data; name="file"; filename="gestion-lead-minimo.bpmn20.xml"
+Content-Type: application/xml
+
+< ../BPMN/gestion-lead-minimo.bpmn20.xml
+------Boundary--
+
+### 3) Ver definiciones de proceso desplegadas
+GET {{baseUrl}}/service/repository/process-definitions?key=gestionLead
+Authorization: {{authorization}}
+
+### 4) Iniciar una instancia (llega una consulta por Instagram)
+POST {{baseUrl}}/service/runtime/process-instances
+Authorization: {{authorization}}
+Content-Type: application/json
+
+{
+  "processDefinitionKey": "gestionLead",
+  "businessKey": "LEAD-0001",
+  "variables": [
+    { "name": "nombre",   "value": "María González" },
+    { "name": "telefono", "value": "+56911111111" },
+    { "name": "canal",    "value": "instagram" },
+    { "name": "interes",  "value": "Torta mediana para perro" }
+  ]
+}
+
+### 5) Bandeja de tareas (copiar el "id" de la tarea "Registrar lead")
+GET {{baseUrl}}/service/runtime/tasks?processDefinitionKey=gestionLead
+Authorization: {{authorization}}
+
+### 6) Completar "Registrar lead"
+@taskRegistrar = PEGAR-ID-TAREA
+POST {{baseUrl}}/service/runtime/tasks/{{taskRegistrar}}
+Authorization: {{authorization}}
+Content-Type: application/json
+
+{
+  "action": "complete",
+  "variables": [
+    { "name": "correo", "value": "maria@example.com" }
+  ]
+}
+
+### 7) Volver a consultar la bandeja (ahora aparece "Realizar seguimiento")
+GET {{baseUrl}}/service/runtime/tasks?processDefinitionKey=gestionLead
+Authorization: {{authorization}}
+
+### 8) Completar "Realizar seguimiento" indicando si compró
+@taskSeguimiento = PEGAR-ID-TAREA
+POST {{baseUrl}}/service/runtime/tasks/{{taskSeguimiento}}
+Authorization: {{authorization}}
+Content-Type: application/json
+
+{
+  "action": "complete",
+  "variables": [
+    { "name": "compro", "type": "boolean", "value": true }
+  ]
+}
+
+### 9) Historial: ver por qué fin terminó la instancia (finConvertido / finNoConvertido)
+GET {{baseUrl}}/service/history/historic-activity-instances?processDefinitionId=PEGAR-PROCESS-DEFINITION-ID&activityType=endEvent
+Authorization: {{authorization}}
+
+### 10) Instancias históricas terminadas
+GET {{baseUrl}}/service/history/historic-process-instances?processDefinitionKey=gestionLead&finished=true
+Authorization: {{authorization}}

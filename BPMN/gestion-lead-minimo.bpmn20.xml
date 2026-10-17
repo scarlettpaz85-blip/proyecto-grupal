@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://peluditospetchile.cl/bpmn">
+
+  <process id="gestionLead" name="Peluditos - Gestión de Lead (mínimo)" isExecutable="true">
+
+    <startEvent id="inicio" name="Llega consulta"/>
+    <sequenceFlow id="f1" sourceRef="inicio" targetRef="registrarLead"/>
+
+    <userTask id="registrarLead" name="Registrar lead">
+      <documentation>Registrar nombre, contacto, canal (instagram, whatsapp, facebook, tiktok, web) y producto de interés.</documentation>
+    </userTask>
+    <sequenceFlow id="f2" sourceRef="registrarLead" targetRef="realizarSeguimiento"/>
+
+    <userTask id="realizarSeguimiento" name="Realizar seguimiento">
+      <documentation>Contactar al interesado. Al completar, enviar la variable booleana 'compro'.</documentation>
+    </userTask>
+    <sequenceFlow id="f3" sourceRef="realizarSeguimiento" targetRef="gwCompro"/>
+
+    <exclusiveGateway id="gwCompro" name="¿Compró?" default="fNo"/>
+    <sequenceFlow id="fSi" name="Sí" sourceRef="gwCompro" targetRef="finConvertido">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${compro == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="fNo" name="No" sourceRef="gwCompro" targetRef="finNoConvertido"/>
+
+    <endEvent id="finConvertido" name="Lead convertido en cliente"/>
+    <endEvent id="finNoConvertido" name="Lead no convertido"/>
+  </process>
+
+  <bpmndi:BPMNDiagram id="diagrama_gestionLead">
+    <bpmndi:BPMNPlane id="plano_gestionLead" bpmnElement="gestionLead">
+      <bpmndi:BPMNShape id="s_inicio" bpmnElement="inicio"><omgdc:Bounds x="60" y="137" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_registrarLead" bpmnElement="registrarLead"><omgdc:Bounds x="150" y="115" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_realizarSeguimiento" bpmnElement="realizarSeguimiento"><omgdc:Bounds x="320" y="115" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_gwCompro" bpmnElement="gwCompro" isMarkerVisible="true"><omgdc:Bounds x="490" y="130" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_finConvertido" bpmnElement="finConvertido"><omgdc:Bounds x="600" y="67" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_finNoConvertido" bpmnElement="finNoConvertido"><omgdc:Bounds x="600" y="207" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="e_f1" bpmnElement="f1"><omgdi:waypoint x="96" y="155"/><omgdi:waypoint x="150" y="155"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_f2" bpmnElement="f2"><omgdi:waypoint x="270" y="155"/><omgdi:waypoint x="320" y="155"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_f3" bpmnElement="f3"><omgdi:waypoint x="440" y="155"/><omgdi:waypoint x="490" y="155"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_fSi" bpmnElement="fSi"><omgdi:waypoint x="515" y="130"/><omgdi:waypoint x="515" y="85"/><omgdi:waypoint x="600" y="85"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_fNo" bpmnElement="fNo"><omgdi:waypoint x="515" y="180"/><omgdi:waypoint x="515" y="225"/><omgdi:waypoint x="600" y="225"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
