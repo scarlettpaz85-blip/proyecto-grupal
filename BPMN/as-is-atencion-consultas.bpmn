@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_ASIS1" targetNamespace="http://peluditospetchile.cl/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
+  <collaboration id="Colab_ASIS1">
+    <participant id="P_Cliente" name="Cliente" processRef="Proc_Cliente" />
+    <participant id="P_Peluditos" name="Peluditos Pet Chile" processRef="Proc_Peluditos" />
+    <messageFlow id="M1" name="Consulta" sourceRef="C_Consulta" targetRef="E_Inicio" />
+    <messageFlow id="M2" name="Precios y opciones" sourceRef="E_Responder" targetRef="C_RecibeInfo" />
+    <messageFlow id="M3" name="Pedido y comprobante" sourceRef="C_Confirmar" targetRef="E_Confirmacion" />
+    <messageFlow id="M4" name="Pedido" sourceRef="E_Entregar" targetRef="C_RecibePedido" />
+    <textAnnotation id="A1">
+      <text>Dolor: el perfil no tiene enlace directo a WhatsApp; el cliente debe copiar el número</text>
+    </textAnnotation>
+    <textAnnotation id="A2">
+      <text>Dolor: si el cliente no responde, no se vuelve a contactar ni se registra el motivo</text>
+    </textAnnotation>
+    <textAnnotation id="A3">
+      <text>Dolor: no se registra al cliente ni a su mascota para futuras compras</text>
+    </textAnnotation>
+    <association id="As1" sourceRef="E_Leer" targetRef="A1" />
+    <association id="As2" sourceRef="E_FinSinSeguimiento" targetRef="A2" />
+    <association id="As3" sourceRef="E_FinVenta" targetRef="A3" />
+  </collaboration>
+  <process id="Proc_Cliente" isExecutable="false">
+    <startEvent id="C_Inicio" name="Necesita un producto para su mascota" />
+    <task id="C_Consulta" name="Enviar consulta por mensaje directo, teléfono o tienda web" />
+    <intermediateCatchEvent id="C_RecibeInfo" name="Información recibida">
+      <messageEventDefinition />
+    </intermediateCatchEvent>
+    <exclusiveGateway id="C_Gw" name="¿Le interesa comprar?" />
+    <task id="C_Confirmar" name="Confirmar pedido y transferir pago" />
+    <intermediateCatchEvent id="C_RecibePedido" name="Pedido recibido">
+      <messageEventDefinition />
+    </intermediateCatchEvent>
+    <endEvent id="C_FinCompra" name="Compra realizada" />
+    <endEvent id="C_FinNoCompra" name="No compra" />
+    <sequenceFlow id="cf1" sourceRef="C_Inicio" targetRef="C_Consulta" />
+    <sequenceFlow id="cf2" sourceRef="C_Consulta" targetRef="C_RecibeInfo" />
+    <sequenceFlow id="cf3" sourceRef="C_RecibeInfo" targetRef="C_Gw" />
+    <sequenceFlow id="cf4" name="Sí" sourceRef="C_Gw" targetRef="C_Confirmar" />
+    <sequenceFlow id="cf5" name="No" sourceRef="C_Gw" targetRef="C_FinNoCompra" />
+    <sequenceFlow id="cf6" sourceRef="C_Confirmar" targetRef="C_RecibePedido" />
+    <sequenceFlow id="cf7" sourceRef="C_RecibePedido" targetRef="C_FinCompra" />
+  </process>
+  <process id="Proc_Peluditos" isExecutable="false">
+    <laneSet id="LS1">
+      <lane id="L_Emprendedora" name="Emprendedora">
+        <flowNodeRef>E_Inicio</flowNodeRef>
+        <flowNodeRef>E_Leer</flowNodeRef>
+        <flowNodeRef>E_Responder</flowNodeRef>
+        <flowNodeRef>E_GwEvento</flowNodeRef>
+        <flowNodeRef>E_Confirmacion</flowNodeRef>
+        <flowNodeRef>E_SinRespuesta</flowNodeRef>
+        <flowNodeRef>E_Verificar</flowNodeRef>
+        <flowNodeRef>E_Elaborar</flowNodeRef>
+        <flowNodeRef>E_Entregar</flowNodeRef>
+        <flowNodeRef>E_FinVenta</flowNodeRef>
+        <flowNodeRef>E_FinSinSeguimiento</flowNodeRef>
+      </lane>
+    </laneSet>
+    <dataStoreReference id="DS_Chats" name="Chats de redes sociales" />
+    <startEvent id="E_Inicio" name="Consulta recibida">
+      <messageEventDefinition />
+    </startEvent>
+    <task id="E_Leer" name="Leer consulta en la red social" />
+    <task id="E_Responder" name="Responder precios, sabores y disponibilidad">
+      <dataOutputAssociation id="DOA1">
+        <targetRef>DS_Chats</targetRef>
+      </dataOutputAssociation>
+    </task>
+    <eventBasedGateway id="E_GwEvento" name="¿Responde el cliente?" />
+    <intermediateCatchEvent id="E_Confirmacion" name="Pedido y comprobante recibidos">
+      <messageEventDefinition />
+    </intermediateCatchEvent>
+    <intermediateCatchEvent id="E_SinRespuesta" name="Cliente deja de responder">
+      <timerEventDefinition />
+    </intermediateCatchEvent>
+    <task id="E_Verificar" name="Verificar transferencia" />
+    <task id="E_Elaborar" name="Elaborar torta" />
+    <task id="E_Entregar" name="Coordinar y realizar entrega" />
+    <endEvent id="E_FinVenta" name="Venta concretada" />
+    <endEvent id="E_FinSinSeguimiento" name="Consulta queda sin seguimiento" />
+    <sequenceFlow id="ef1" sourceRef="E_Inicio" targetRef="E_Leer" />
+    <sequenceFlow id="ef2" sourceRef="E_Leer" targetRef="E_Responder" />
+    <sequenceFlow id="ef3" sourceRef="E_Responder" targetRef="E_GwEvento" />
+    <sequenceFlow id="ef4" sourceRef="E_GwEvento" targetRef="E_Confirmacion" />
+    <sequenceFlow id="ef5" sourceRef="E_GwEvento" targetRef="E_SinRespuesta" />
+    <sequenceFlow id="ef6" sourceRef="E_Confirmacion" targetRef="E_Verificar" />
+    <sequenceFlow id="ef10" sourceRef="E_SinRespuesta" targetRef="E_FinSinSeguimiento" />
+    <sequenceFlow id="ef7" sourceRef="E_Verificar" targetRef="E_Elaborar" />
+    <sequenceFlow id="ef8" sourceRef="E_Elaborar" targetRef="E_Entregar" />
+    <sequenceFlow id="ef9" sourceRef="E_Entregar" targetRef="E_FinVenta" />
+  </process>
+  <bpmndi:BPMNDiagram id="D1">
+    <bpmndi:BPMNPlane id="PL1" bpmnElement="Colab_ASIS1">
+      <bpmndi:BPMNShape id="P_Cliente_di" bpmnElement="P_Cliente" isHorizontal="true">
+        <dc:Bounds x="160" y="40" width="1500" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_Inicio_di" bpmnElement="C_Inicio">
+        <dc:Bounds x="232" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="209" y="158" width="83" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_Consulta_di" bpmnElement="C_Consulta">
+        <dc:Bounds x="310" y="100" width="120" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_RecibeInfo_di" bpmnElement="C_RecibeInfo">
+        <dc:Bounds x="670" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="659" y="158" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_Gw_di" bpmnElement="C_Gw" isMarkerVisible="true">
+        <dc:Bounds x="760" y="115" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="754" y="165" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_Confirmar_di" bpmnElement="C_Confirmar">
+        <dc:Bounds x="870" y="100" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_RecibePedido_di" bpmnElement="C_RecibePedido">
+        <dc:Bounds x="1410" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1390" y="173" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_FinCompra_di" bpmnElement="C_FinCompra">
+        <dc:Bounds x="1510" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1485" y="158" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C_FinNoCompra_di" bpmnElement="C_FinNoCompra">
+        <dc:Bounds x="850" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="841" y="228" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="cf1_di" bpmnElement="cf1">
+        <di:waypoint x="268" y="140" />
+        <di:waypoint x="310" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="cf2_di" bpmnElement="cf2">
+        <di:waypoint x="430" y="140" />
+        <di:waypoint x="670" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="cf3_di" bpmnElement="cf3">
+        <di:waypoint x="706" y="140" />
+        <di:waypoint x="760" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="cf4_di" bpmnElement="cf4">
+        <di:waypoint x="810" y="140" />
+        <di:waypoint x="870" y="140" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="835" y="115" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="cf5_di" bpmnElement="cf5">
+        <di:waypoint x="785" y="165" />
+        <di:waypoint x="785" y="210" />
+        <di:waypoint x="850" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="793" y="178" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="cf6_di" bpmnElement="cf6">
+        <di:waypoint x="990" y="140" />
+        <di:waypoint x="1410" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="cf7_di" bpmnElement="cf7">
+        <di:waypoint x="1446" y="140" />
+        <di:waypoint x="1510" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="P_Peluditos_di" bpmnElement="P_Peluditos" isHorizontal="true">
+        <dc:Bounds x="160" y="300" width="1500" height="320" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_Emprendedora_di" bpmnElement="L_Emprendedora" isHorizontal="true">
+        <dc:Bounds x="190" y="300" width="1470" height="320" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DS_Chats_di" bpmnElement="DS_Chats">
+        <dc:Bounds x="605" y="525" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="593" y="575" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Inicio_di" bpmnElement="E_Inicio">
+        <dc:Bounds x="352" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="328" y="438" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Leer_di" bpmnElement="E_Leer">
+        <dc:Bounds x="420" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Responder_di" bpmnElement="E_Responder">
+        <dc:Bounds x="570" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_GwEvento_di" bpmnElement="E_GwEvento">
+        <dc:Bounds x="730" y="395" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="721" y="445" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Confirmacion_di" bpmnElement="E_Confirmacion">
+        <dc:Bounds x="830" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="816" y="438" width="65" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_SinRespuesta_di" bpmnElement="E_SinRespuesta">
+        <dc:Bounds x="830" y="512" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="811" y="548" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Verificar_di" bpmnElement="E_Verificar">
+        <dc:Bounds x="910" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Elaborar_di" bpmnElement="E_Elaborar">
+        <dc:Bounds x="1060" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_Entregar_di" bpmnElement="E_Entregar">
+        <dc:Bounds x="1210" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_FinVenta_di" bpmnElement="E_FinVenta">
+        <dc:Bounds x="1370" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1345" y="438" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_FinSinSeguimiento_di" bpmnElement="E_FinSinSeguimiento">
+        <dc:Bounds x="950" y="512" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="929" y="548" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="ef1_di" bpmnElement="ef1">
+        <di:waypoint x="388" y="420" />
+        <di:waypoint x="420" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef2_di" bpmnElement="ef2">
+        <di:waypoint x="540" y="420" />
+        <di:waypoint x="570" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef3_di" bpmnElement="ef3">
+        <di:waypoint x="690" y="420" />
+        <di:waypoint x="730" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef4_di" bpmnElement="ef4">
+        <di:waypoint x="780" y="420" />
+        <di:waypoint x="830" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef5_di" bpmnElement="ef5">
+        <di:waypoint x="755" y="445" />
+        <di:waypoint x="755" y="530" />
+        <di:waypoint x="830" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef6_di" bpmnElement="ef6">
+        <di:waypoint x="866" y="420" />
+        <di:waypoint x="910" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef10_di" bpmnElement="ef10">
+        <di:waypoint x="866" y="530" />
+        <di:waypoint x="950" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef7_di" bpmnElement="ef7">
+        <di:waypoint x="1030" y="420" />
+        <di:waypoint x="1060" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef8_di" bpmnElement="ef8">
+        <di:waypoint x="1180" y="420" />
+        <di:waypoint x="1210" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ef9_di" bpmnElement="ef9">
+        <di:waypoint x="1330" y="420" />
+        <di:waypoint x="1370" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="A1_di" bpmnElement="A1">
+        <dc:Bounds x="410" y="510" width="162" height="72" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="A2_di" bpmnElement="A2">
+        <dc:Bounds x="1030" y="500" width="230" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="A3_di" bpmnElement="A3">
+        <dc:Bounds x="1410" y="500" width="220" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DOA1_di" bpmnElement="DOA1">
+        <di:waypoint x="630" y="460" />
+        <di:waypoint x="630" y="525" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M1_di" bpmnElement="M1">
+        <di:waypoint x="370" y="180" />
+        <di:waypoint x="370" y="402" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="378" y="281" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M2_di" bpmnElement="M2">
+        <di:waypoint x="630" y="380" />
+        <di:waypoint x="630" y="280" />
+        <di:waypoint x="688" y="280" />
+        <di:waypoint x="688" y="158" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="628" y="266" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M3_di" bpmnElement="M3">
+        <di:waypoint x="930" y="180" />
+        <di:waypoint x="930" y="290" />
+        <di:waypoint x="848" y="290" />
+        <di:waypoint x="848" y="402" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="857" y="265" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M4_di" bpmnElement="M4">
+        <di:waypoint x="1270" y="380" />
+        <di:waypoint x="1270" y="280" />
+        <di:waypoint x="1428" y="280" />
+        <di:waypoint x="1428" y="158" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1302" y="263" width="35" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="As1_di" bpmnElement="As1">
+        <di:waypoint x="480" y="460" />
+        <di:waypoint x="480" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="As2_di" bpmnElement="As2">
+        <di:waypoint x="986" y="530" />
+        <di:waypoint x="1030" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="As3_di" bpmnElement="As3">
+        <di:waypoint x="1400" y="436" />
+        <di:waypoint x="1440" y="500" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
