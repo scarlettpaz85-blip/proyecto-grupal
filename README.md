@@ -10,7 +10,7 @@
 | scarlett paz| scarlettpaz85-blip| Analista de procesos |
 | Jennifer igor| | Modelador BPMN |
 | | | Integrador (Web Services) |
-| christofer comas|christopher1-01 | Implementador (Flowable) / QA |
+| christopher comas|christopher1-01 | Implementador (Flowable) / QA |
 
 > Los roles rotan semanalmente. El historial de la rotación queda en las actas.
 
