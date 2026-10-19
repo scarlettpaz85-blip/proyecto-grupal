@@ -7,10 +7,10 @@
 
 | Nombre | Usuario GitHub | Rol actual (semana N) |
 |---|---|---|
-| | | Analista de procesos |
-| | | Modelador BPMN |
+| scarlett paz| scarlettpaz85-blip| Analista de procesos |
+| Jennifer igor| | Modelador BPMN |
 | | | Integrador (Web Services) |
-| | | Implementador (Flowable) / QA |
+| christofer comas|christopher1-01 | Implementador (Flowable) / QA |
 
 > Los roles rotan semanalmente. El historial de la rotación queda en las actas.
 
