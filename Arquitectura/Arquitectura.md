@@ -14,6 +14,6 @@ flowchart TD
 ```
 ## Estado de los componentes
 
-- **Flowable Enterprise:** [Implementado / En desarrollo]
-- **External Worker:** [Implementado / Planificado]
-- **Web Service Java:** [Implementado / Planificado]
+- **Flowable Enterprise:** [ En desarrollo]
+- **External Worker:** [Planificado]
+- **Web Service Java:** [planificado]
