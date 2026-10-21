@@ -1,16 +1,17 @@
 # Integración de Plataformas (INP) – Servicio Disciplinar
 
-> Proyecto grupal para el emprendimiento: **Peluditos Pet Chile** (pastelería para mascotas)
-> Docente: [Nombre] · Bimestre: [X-2026]
+## Proyecto: Peluditos Pet Chile
 
-## Integrantes
+Proyecto grupal desarrollado para el emprendimiento Peluditos Pet Chile, una pastelería especializada en productos para mascotas.
+
+**Docente:** [Santiago Neira]  
+**Bimestre:** 4– 2026  
 
 | Nombre | Usuario GitHub | Rol actual (semana N) |
 |---|---|---|
-| scarlett paz| scarlettpaz85-blip| Analista de procesos |
-| Jennifer igor| | Modelador BPMN |
-| | | Integrador (Web Services) |
-| christopher comas|christopher1-01 | Implementador (Flowable) / QA |
+| scarlett paz| scarlettpaz85-blip| Analista de procesos y coordinadora |
+| Jennifer igor| |Modeladora BPMN TO-BE e integradora Flowable|
+| christopher comas|christopher1-01 |Analista BPMN AS-IS y desarrollador de Web Services Java  |
 
 > Los roles rotan semanalmente. El historial de la rotación queda en las actas.
 
