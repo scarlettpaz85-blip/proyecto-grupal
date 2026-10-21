@@ -17,11 +17,18 @@ Proyecto grupal desarrollado para el emprendimiento Peluditos Pet Chile, una pas
 
 ## Problema y solución
 
-**Problema (AS-IS):** Peluditos Pet Chile recibe consultas por Instagram, Facebook, TikTok y WhatsApp, pero no las registra ni les hace seguimiento formal. Por eso no sabe cuántos interesados terminan comprando, y pierde oportunidades de recompra en fechas relevantes (cumpleaños de mascotas, Navidad, Día del Perro, etc.).
+**Problema (AS-IS):** Peluditos Pet Chile recibe consultas por Instagram, Facebook, TikTok y WhatsApp, pero no cuenta con un registro centralizado ni un seguimiento formal de los interesados. Esto dificulta conocer cuántas consultas se convierten en compras y aprovechar oportunidades comerciales en fechas relevantes, como cumpleaños de mascotas, Navidad y el Día del Perro.
 
-**Solución (TO-BE / MVP):** dos procesos ejecutados en Flowable:
-1. **Gestión de leads:** registrar a cada interesado, hacerle seguimiento con recordatorios y cerrarlo como convertido o no convertido.
-2. **Oportunidades comerciales:** generar automáticamente tareas de recontacto cuando se acerca una fecha relevante de un cliente o una campaña.
+**Solución propuesta (TO-BE / MVP):** Desarrollar un sistema de gestión de interesados (*leads*) mediante procesos BPMN en Flowable, que permita:
+
+1. **Gestión de leads:** registrar a cada interesado, realizar seguimiento de sus consultas y registrar si se convierte o no en cliente.
+2. **Oportunidades comerciales:** identificar fechas relevantes para los clientes y generar tareas de seguimiento o recontacto.
+
+El MVP contempla el registro manual de interesados, sin integración automática con redes sociales.
+
+**Estado del proyecto:** La solución se encuentra en desarrollo. Las funcionalidades se implementarán y validarán progresivamente durante las entregas.
+
+
 
 Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 
