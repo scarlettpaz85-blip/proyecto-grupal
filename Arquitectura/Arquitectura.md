@@ -12,4 +12,8 @@ flowchart TD
     C -->|"Respuesta"| B
     B -->|"Continúa el proceso"| A
 ```
+## Estado de los componentes
 
+- **Flowable Enterprise:** [Implementado / En desarrollo]
+- **External Worker:** [Implementado / Planificado]
+- **Web Service Java:** [Implementado / Planificado]
