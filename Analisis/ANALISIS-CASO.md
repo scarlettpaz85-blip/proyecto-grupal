@@ -1,6 +1,6 @@
 # Análisis del caso – Peluditos Pet Chile
 
-> Responsable: [Nombre] (Coordinación y análisis) · Versión 0.1 · 2026-10-17
+> Responsable: [Scarlett Paz] (Coordinación y análisis) · Versión 0.1 · 2026-10-17
 > Fuentes: documento del caso (PDF), tienda web https://peluditospetchile.sumerlabs.com, Instagram @peluditospetchile.
 > ⚠️ Los puntos marcados **[Supuesto]** deben validarse con la emprendedora (ver `Actas/PREGUNTAS-EMPRENDEDOR.md`).
 
@@ -82,7 +82,7 @@ Peluditos Pet Chile elabora y vende pastelería para perros y gatos (tortas pequ
 ## 7. Requerimientos no funcionales
 | ID | Requerimiento |
 |---|---|
-| RNF01 | Procesos ejecutados en Flowable OSS 7.2 (motor como fuente de la verdad) |
+| RNF01 | El prototipo inicial se ejecutará en Flowable Enterprise. La adaptación a Flowable OSS se realizará en entregas posteriores. |
 | RNF02 | Servicios web en Java 21 (Jakarta REST o SOAP) |
 | RNF03 | Interfaz simple, usable desde celular [Supuesto] |
 | RNF04 | Persistencia en base de datos relacional |
