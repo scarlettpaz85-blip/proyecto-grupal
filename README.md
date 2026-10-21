@@ -10,7 +10,7 @@ Proyecto grupal desarrollado para el emprendimiento Peluditos Pet Chile, una pas
 | Nombre | Usuario GitHub | Rol actual (semana N) |
 |---|---|---|
 | scarlett paz| scarlettpaz85-blip| Analista de procesos y coordinadora |
-| Jennifer igor| |Modeladora BPMN TO-BE e integradora Flowable|
+| Jennifer igor|JenniferGor |Modeladora BPMN TO-BE e integradora Flowable|
 | christopher comas|christopher1-01 |Analista BPMN AS-IS y desarrollador de Web Services Java  |
 
 > Los roles rotan semanalmente. El historial de la rotación queda en las actas.
