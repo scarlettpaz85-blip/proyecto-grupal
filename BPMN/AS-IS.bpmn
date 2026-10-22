@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_ASIS" targetNamespace="http://peluditospetchile.cl/bpmn">
+  <category id="Cat_Procesos">
+    <categoryValue id="CV_P1" value="Proceso 1: Atención de consultas"/>
+    <categoryValue id="CV_P2" value="Proceso 2: Recontacto en fechas especiales"/>
+  </category>
+  <collaboration id="Colab_ASIS">
+    <participant id="P_Cliente" name="Cliente" processRef="Proc_Cliente"/>
+    <participant id="P_Peluditos" name="Peluditos Pet Chile" processRef="Proc_Peluditos"/>
+    <participant id="P_Seguidores" name="Clientes y seguidores"/>
+    <messageFlow id="M1" name="Consulta" sourceRef="C_Consulta" targetRef="E_Inicio"/>
+    <messageFlow id="M2" name="Precios y opciones" sourceRef="E_Responder" targetRef="C_RecibeInfo"/>
+    <messageFlow id="M3" name="Pedido y comprobante" sourceRef="C_Confirmar" targetRef="E_Confirmacion"/>
+    <messageFlow id="M4" name="Pedido" sourceRef="E_Entregar" targetRef="C_RecibePedido"/>
+    <messageFlow id="M21" name="Mensaje con promoción" sourceRef="R_Mensajes" targetRef="P_Seguidores"/>
+    <messageFlow id="M22" name="Nuevas consultas" sourceRef="P_Seguidores" targetRef="R_Responder"/>
+    <group id="G1" categoryValueRef="CV_P1"/>
+    <group id="G2" categoryValueRef="CV_P2"/>
+    <textAnnotation id="A0"><text>Dolor: el perfil no tiene enlace directo a WhatsApp; el cliente debe copiar el número</text></textAnnotation>
+    <textAnnotation id="A1"><text>Dolor: no se registra la consulta ni el canal de origen</text></textAnnotation>
+    <textAnnotation id="A2"><text>Dolor: si el cliente no responde, no se vuelve a contactar ni se registra el motivo</text></textAnnotation>
+    <textAnnotation id="A3"><text>Dolor: no se registra al cliente ni a su mascota para futuras compras</text></textAnnotation>
+    <textAnnotation id="A21"><text>Dolor: depende de la memoria de la emprendedora; no hay registro de fechas ni de cumpleaños de mascotas.
+Evidencia (Instagram, 17-oct): se celebran cumpleaños de mascotas, pero no hay campaña de Halloween.</text></textAnnotation>
+    <textAnnotation id="A22"><text>Las consultas generadas siguen el Proceso 1 (sin registro ni seguimiento)</text></textAnnotation>
+    <textAnnotation id="A23"><text>Dolor: no se mide cuántas ventas genera cada campaña</text></textAnnotation>
+    <textAnnotation id="A24"><text>Dolor: publicaciones esporádicas y sin planificación; no existe un calendario de campañas</text></textAnnotation>
+    <association id="As0" sourceRef="C_Consulta" targetRef="A0"/>
+    <association id="As1" sourceRef="E_Leer" targetRef="A1"/>
+    <association id="As2" sourceRef="E_FinSinSeguimiento" targetRef="A2"/>
+    <association id="As3" sourceRef="E_FinVenta" targetRef="A3"/>
+    <association id="As21" sourceRef="R_Inicio" targetRef="A21"/>
+    <association id="As22" sourceRef="R_Responder" targetRef="A22"/>
+    <association id="As23" sourceRef="R_Fin" targetRef="A23"/>
+    <association id="As24" sourceRef="R_Publicar" targetRef="A24"/>
+  </collaboration>
+
+  <process id="Proc_Cliente" isExecutable="false">
+    <startEvent id="C_Inicio" name="Necesita un producto para su mascota"/>
+    <task id="C_Consulta" name="Enviar consulta por mensaje directo, teléfono o tienda web"/>
+    <intermediateCatchEvent id="C_RecibeInfo" name="Información recibida"><messageEventDefinition/></intermediateCatchEvent>
+    <exclusiveGateway id="C_Gw" name="¿Le interesa comprar?"/>
+    <task id="C_Confirmar" name="Confirmar pedido y transferir pago"/>
+    <intermediateCatchEvent id="C_RecibePedido" name="Pedido recibido"><messageEventDefinition/></intermediateCatchEvent>
+    <endEvent id="C_FinCompra" name="Compra realizada"/>
+    <endEvent id="C_FinNoCompra" name="No compra"/>
+    <sequenceFlow id="cf1" sourceRef="C_Inicio" targetRef="C_Consulta"/>
+    <sequenceFlow id="cf2" sourceRef="C_Consulta" targetRef="C_RecibeInfo"/>
+    <sequenceFlow id="cf3" sourceRef="C_RecibeInfo" targetRef="C_Gw"/>
+    <sequenceFlow id="cf4" name="Sí" sourceRef="C_Gw" targetRef="C_Confirmar"/>
+    <sequenceFlow id="cf5" name="No" sourceRef="C_Gw" targetRef="C_FinNoCompra"/>
+    <sequenceFlow id="cf6" sourceRef="C_Confirmar" targetRef="C_RecibePedido"/>
+    <sequenceFlow id="cf7" sourceRef="C_RecibePedido" targetRef="C_FinCompra"/>
+  </process>
+
+  <process id="Proc_Peluditos" isExecutable="false">
+    <laneSet id="LS1"><lane id="L_Emprendedora" name="Emprendedora">
+      <flowNodeRef>E_Inicio</flowNodeRef><flowNodeRef>E_Leer</flowNodeRef><flowNodeRef>E_Responder</flowNodeRef>
+      <flowNodeRef>E_GwEvento</flowNodeRef><flowNodeRef>E_Confirmacion</flowNodeRef><flowNodeRef>E_SinRespuesta</flowNodeRef>
+      <flowNodeRef>E_Verificar</flowNodeRef><flowNodeRef>E_Preparar</flowNodeRef><flowNodeRef>E_Entregar</flowNodeRef>
+      <flowNodeRef>E_FinVenta</flowNodeRef><flowNodeRef>E_FinSinSeguimiento</flowNodeRef>
+      <flowNodeRef>R_Inicio</flowNodeRef><flowNodeRef>R_Buscar</flowNodeRef><flowNodeRef>R_Gw</flowNodeRef>
+      <flowNodeRef>R_Publicar</flowNodeRef><flowNodeRef>R_Mensajes</flowNodeRef><flowNodeRef>R_Join</flowNodeRef>
+      <flowNodeRef>R_Responder</flowNodeRef><flowNodeRef>R_Fin</flowNodeRef>
+    </lane></laneSet>
+    <dataStoreReference id="DS_Chats" name="Chats de redes sociales"/>
+    <dataStoreReference id="DS2_Chats" name="Chats e historial de redes sociales"/>
+
+    <!-- Proceso 1: Atención de consultas -->
+    <startEvent id="E_Inicio" name="Consulta recibida"><messageEventDefinition/></startEvent>
+    <task id="E_Leer" name="Leer consulta recibida"/>
+    <task id="E_Responder" name="Responder precios, opciones y disponibilidad">
+      <dataOutputAssociation id="DOA1"><targetRef>DS_Chats</targetRef></dataOutputAssociation>
+    </task>
+    <eventBasedGateway id="E_GwEvento" name="¿Responde el cliente?"/>
+    <intermediateCatchEvent id="E_Confirmacion" name="Pedido y comprobante recibidos"><messageEventDefinition/></intermediateCatchEvent>
+    <intermediateCatchEvent id="E_SinRespuesta" name="Cliente deja de responder"><timerEventDefinition/></intermediateCatchEvent>
+    <task id="E_Verificar" name="Verificar transferencia"/>
+    <task id="E_Preparar" name="Preparar pedido"/>
+    <task id="E_Entregar" name="Coordinar y realizar entrega"/>
+    <endEvent id="E_FinVenta" name="Venta concretada"/>
+    <endEvent id="E_FinSinSeguimiento" name="Consulta queda sin seguimiento"/>
+    <sequenceFlow id="ef1" sourceRef="E_Inicio" targetRef="E_Leer"/>
+    <sequenceFlow id="ef2" sourceRef="E_Leer" targetRef="E_Responder"/>
+    <sequenceFlow id="ef3" sourceRef="E_Responder" targetRef="E_GwEvento"/>
+    <sequenceFlow id="ef4" sourceRef="E_GwEvento" targetRef="E_Confirmacion"/>
+    <sequenceFlow id="ef5" sourceRef="E_GwEvento" targetRef="E_SinRespuesta"/>
+    <sequenceFlow id="ef6" sourceRef="E_Confirmacion" targetRef="E_Verificar"/>
+    <sequenceFlow id="ef7" sourceRef="E_Verificar" targetRef="E_Preparar"/>
+    <sequenceFlow id="ef8" sourceRef="E_Preparar" targetRef="E_Entregar"/>
+    <sequenceFlow id="ef9" sourceRef="E_Entregar" targetRef="E_FinVenta"/>
+    <sequenceFlow id="ef10" sourceRef="E_SinRespuesta" targetRef="E_FinSinSeguimiento"/>
+
+    <!-- Proceso 2: Recontacto en fechas especiales -->
+    <startEvent id="R_Inicio" name="Recuerda una fecha especial"/>
+    <task id="R_Buscar" name="Buscar clientes anteriores en chats y seguidores">
+      <property id="R_Buscar_prop" name="__targetRef_placeholder"/>
+      <dataInputAssociation id="DIA2"><sourceRef>DS2_Chats</sourceRef><targetRef>R_Buscar_prop</targetRef></dataInputAssociation>
+    </task>
+    <exclusiveGateway id="R_Gw" name="¿Cómo difundir?"/>
+    <task id="R_Publicar" name="Publicar promoción en redes sociales"/>
+    <task id="R_Mensajes" name="Enviar mensajes uno a uno por WhatsApp"/>
+    <exclusiveGateway id="R_Join"/>
+    <task id="R_Responder" name="Responder consultas de interesados"/>
+    <endEvent id="R_Fin" name="Campaña realizada"/>
+    <sequenceFlow id="rf1" sourceRef="R_Inicio" targetRef="R_Buscar"/>
+    <sequenceFlow id="rf2" sourceRef="R_Buscar" targetRef="R_Gw"/>
+    <sequenceFlow id="rf3" name="Público general" sourceRef="R_Gw" targetRef="R_Publicar"/>
+    <sequenceFlow id="rf4" name="Clientes conocidos" sourceRef="R_Gw" targetRef="R_Mensajes"/>
+    <sequenceFlow id="rf5" sourceRef="R_Publicar" targetRef="R_Join"/>
+    <sequenceFlow id="rf6" sourceRef="R_Mensajes" targetRef="R_Join"/>
+    <sequenceFlow id="rf7" sourceRef="R_Join" targetRef="R_Responder"/>
+    <sequenceFlow id="rf8" sourceRef="R_Responder" targetRef="R_Fin"/>
+  </process>
+
+  <bpmndi:BPMNDiagram id="D1"><bpmndi:BPMNPlane id="PL1" bpmnElement="Colab_ASIS">
+    <bpmndi:BPMNShape id="P_Cliente_di" bpmnElement="P_Cliente" isHorizontal="true"><dc:Bounds x="50" y="40" width="1500" height="220"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="P_Peluditos_di" bpmnElement="P_Peluditos" isHorizontal="true"><dc:Bounds x="50" y="300" width="1500" height="700"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="L_Emprendedora_di" bpmnElement="L_Emprendedora" isHorizontal="true"><dc:Bounds x="80" y="300" width="1470" height="700"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="P_Seguidores_di" bpmnElement="P_Seguidores" isHorizontal="true"><dc:Bounds x="50" y="1040" width="1500" height="60"/></bpmndi:BPMNShape>
+
+    <bpmndi:BPMNShape id="G1_di" bpmnElement="G1"><dc:Bounds x="200" y="320" width="1335" height="300"/><bpmndi:BPMNLabel><dc:Bounds x="285" y="326" width="260" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="G2_di" bpmnElement="G2"><dc:Bounds x="95" y="640" width="1440" height="350"/><bpmndi:BPMNLabel><dc:Bounds x="105" y="646" width="300" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+
+    <bpmndi:BPMNShape id="C_Inicio_di" bpmnElement="C_Inicio"><dc:Bounds x="122" y="122" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_Consulta_di" bpmnElement="C_Consulta"><dc:Bounds x="200" y="100" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_RecibeInfo_di" bpmnElement="C_RecibeInfo"><dc:Bounds x="560" y="122" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_Gw_di" bpmnElement="C_Gw" isMarkerVisible="true"><dc:Bounds x="650" y="115" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="630" y="72" width="90" height="27"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_Confirmar_di" bpmnElement="C_Confirmar"><dc:Bounds x="760" y="100" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_RecibePedido_di" bpmnElement="C_RecibePedido"><dc:Bounds x="1300" y="122" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_FinCompra_di" bpmnElement="C_FinCompra"><dc:Bounds x="1400" y="122" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_FinNoCompra_di" bpmnElement="C_FinNoCompra"><dc:Bounds x="740" y="192" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="cf1_di" bpmnElement="cf1"><di:waypoint x="158" y="140"/><di:waypoint x="200" y="140"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="cf2_di" bpmnElement="cf2"><di:waypoint x="320" y="140"/><di:waypoint x="560" y="140"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="cf3_di" bpmnElement="cf3"><di:waypoint x="596" y="140"/><di:waypoint x="650" y="140"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="cf4_di" bpmnElement="cf4"><di:waypoint x="700" y="140"/><di:waypoint x="760" y="140"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="cf5_di" bpmnElement="cf5"><di:waypoint x="675" y="165"/><di:waypoint x="675" y="210"/><di:waypoint x="740" y="210"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="cf6_di" bpmnElement="cf6"><di:waypoint x="880" y="140"/><di:waypoint x="1300" y="140"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="cf7_di" bpmnElement="cf7"><di:waypoint x="1336" y="140"/><di:waypoint x="1400" y="140"/></bpmndi:BPMNEdge>
+
+    <bpmndi:BPMNShape id="E_Inicio_di" bpmnElement="E_Inicio"><dc:Bounds x="242" y="402" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_Leer_di" bpmnElement="E_Leer"><dc:Bounds x="310" y="380" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_Responder_di" bpmnElement="E_Responder"><dc:Bounds x="460" y="380" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_GwEvento_di" bpmnElement="E_GwEvento"><dc:Bounds x="620" y="395" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="600" y="355" width="90" height="27"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_Confirmacion_di" bpmnElement="E_Confirmacion"><dc:Bounds x="720" y="402" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_SinRespuesta_di" bpmnElement="E_SinRespuesta"><dc:Bounds x="720" y="512" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_Verificar_di" bpmnElement="E_Verificar"><dc:Bounds x="800" y="380" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_Preparar_di" bpmnElement="E_Preparar"><dc:Bounds x="950" y="380" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_Entregar_di" bpmnElement="E_Entregar"><dc:Bounds x="1100" y="380" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_FinVenta_di" bpmnElement="E_FinVenta"><dc:Bounds x="1260" y="402" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_FinSinSeguimiento_di" bpmnElement="E_FinSinSeguimiento"><dc:Bounds x="840" y="512" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="DS_Chats_di" bpmnElement="DS_Chats"><dc:Bounds x="495" y="525" width="50" height="50"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="ef1_di" bpmnElement="ef1"><di:waypoint x="278" y="420"/><di:waypoint x="310" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef2_di" bpmnElement="ef2"><di:waypoint x="430" y="420"/><di:waypoint x="460" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef3_di" bpmnElement="ef3"><di:waypoint x="580" y="420"/><di:waypoint x="620" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef4_di" bpmnElement="ef4"><di:waypoint x="670" y="420"/><di:waypoint x="720" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef5_di" bpmnElement="ef5"><di:waypoint x="645" y="445"/><di:waypoint x="645" y="530"/><di:waypoint x="720" y="530"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef6_di" bpmnElement="ef6"><di:waypoint x="756" y="420"/><di:waypoint x="800" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef7_di" bpmnElement="ef7"><di:waypoint x="920" y="420"/><di:waypoint x="950" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef8_di" bpmnElement="ef8"><di:waypoint x="1070" y="420"/><di:waypoint x="1100" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef9_di" bpmnElement="ef9"><di:waypoint x="1220" y="420"/><di:waypoint x="1260" y="420"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="ef10_di" bpmnElement="ef10"><di:waypoint x="756" y="530"/><di:waypoint x="840" y="530"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="DOA1_di" bpmnElement="DOA1"><di:waypoint x="520" y="460"/><di:waypoint x="520" y="525"/></bpmndi:BPMNEdge>
+
+    <bpmndi:BPMNEdge id="M1_di" bpmnElement="M1"><di:waypoint x="260" y="180"/><di:waypoint x="260" y="402"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="M2_di" bpmnElement="M2"><di:waypoint x="520" y="380"/><di:waypoint x="520" y="280"/><di:waypoint x="578" y="280"/><di:waypoint x="578" y="158"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="M3_di" bpmnElement="M3"><di:waypoint x="820" y="180"/><di:waypoint x="820" y="290"/><di:waypoint x="738" y="290"/><di:waypoint x="738" y="402"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="M4_di" bpmnElement="M4"><di:waypoint x="1160" y="380"/><di:waypoint x="1160" y="280"/><di:waypoint x="1318" y="280"/><di:waypoint x="1318" y="158"/></bpmndi:BPMNEdge>
+
+    <bpmndi:BPMNShape id="A0_di" bpmnElement="A0"><dc:Bounds x="345" y="175" width="190" height="55"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="A1_di" bpmnElement="A1"><dc:Bounds x="300" y="510" width="160" height="55"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="A2_di" bpmnElement="A2"><dc:Bounds x="920" y="500" width="230" height="60"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="A3_di" bpmnElement="A3"><dc:Bounds x="1300" y="500" width="220" height="55"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="As0_di" bpmnElement="As0"><di:waypoint x="320" y="170"/><di:waypoint x="345" y="190"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="As1_di" bpmnElement="As1"><di:waypoint x="370" y="460"/><di:waypoint x="370" y="510"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="As2_di" bpmnElement="As2"><di:waypoint x="876" y="530"/><di:waypoint x="920" y="530"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="As3_di" bpmnElement="As3"><di:waypoint x="1290" y="436"/><di:waypoint x="1330" y="500"/></bpmndi:BPMNEdge>
+
+    <bpmndi:BPMNShape id="R_Inicio_di" bpmnElement="R_Inicio"><dc:Bounds x="142" y="802" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Buscar_di" bpmnElement="R_Buscar"><dc:Bounds x="230" y="780" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="DS2_Chats_di" bpmnElement="DS2_Chats"><dc:Bounds x="265" y="905" width="50" height="50"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Gw_di" bpmnElement="R_Gw" isMarkerVisible="true"><dc:Bounds x="400" y="795" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="340" y="868" width="80" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Publicar_di" bpmnElement="R_Publicar"><dc:Bounds x="510" y="690" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Mensajes_di" bpmnElement="R_Mensajes"><dc:Bounds x="510" y="870" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Join_di" bpmnElement="R_Join" isMarkerVisible="true"><dc:Bounds x="690" y="795" width="50" height="50"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Responder_di" bpmnElement="R_Responder"><dc:Bounds x="800" y="780" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="R_Fin_di" bpmnElement="R_Fin"><dc:Bounds x="980" y="802" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="rf1_di" bpmnElement="rf1"><di:waypoint x="178" y="820"/><di:waypoint x="230" y="820"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf2_di" bpmnElement="rf2"><di:waypoint x="350" y="820"/><di:waypoint x="400" y="820"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf3_di" bpmnElement="rf3"><di:waypoint x="425" y="795"/><di:waypoint x="425" y="730"/><di:waypoint x="510" y="730"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf4_di" bpmnElement="rf4"><di:waypoint x="425" y="845"/><di:waypoint x="425" y="910"/><di:waypoint x="510" y="910"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf5_di" bpmnElement="rf5"><di:waypoint x="630" y="730"/><di:waypoint x="715" y="730"/><di:waypoint x="715" y="795"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf6_di" bpmnElement="rf6"><di:waypoint x="630" y="910"/><di:waypoint x="715" y="910"/><di:waypoint x="715" y="845"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf7_di" bpmnElement="rf7"><di:waypoint x="740" y="820"/><di:waypoint x="800" y="820"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="rf8_di" bpmnElement="rf8"><di:waypoint x="920" y="820"/><di:waypoint x="980" y="820"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="DIA2_di" bpmnElement="DIA2"><di:waypoint x="290" y="905"/><di:waypoint x="290" y="860"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="M21_di" bpmnElement="M21"><di:waypoint x="570" y="950"/><di:waypoint x="570" y="1040"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="M22_di" bpmnElement="M22"><di:waypoint x="860" y="1040"/><di:waypoint x="860" y="860"/></bpmndi:BPMNEdge>
+
+    <bpmndi:BPMNShape id="A21_di" bpmnElement="A21"><dc:Bounds x="120" y="668" width="270" height="100"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="A22_di" bpmnElement="A22"><dc:Bounds x="1000" y="680" width="230" height="55"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="A23_di" bpmnElement="A23"><dc:Bounds x="1060" y="880" width="210" height="55"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="A24_di" bpmnElement="A24"><dc:Bounds x="650" y="660" width="230" height="55"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="As21_di" bpmnElement="As21"><di:waypoint x="160" y="802"/><di:waypoint x="165" y="768"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="As22_di" bpmnElement="As22"><di:waypoint x="920" y="790"/><di:waypoint x="1000" y="720"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="As23_di" bpmnElement="As23"><di:waypoint x="1010" y="832"/><di:waypoint x="1070" y="880"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="As24_di" bpmnElement="As24"><di:waypoint x="630" y="705"/><di:waypoint x="650" y="695"/></bpmndi:BPMNEdge>
+  </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</definitions>
