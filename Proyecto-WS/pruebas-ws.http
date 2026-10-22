@@ -1,0 +1,19 @@
+### Estado del servicio
+GET http://localhost:8081/api/health
+
+### Registrar un lead (lo mismo que hará el external worker)
+POST http://localhost:8081/api/leads
+Content-Type: application/json
+
+{
+  "nombre": "María González",
+  "telefono": "+56911111111",
+  "canal": "instagram",
+  "interes": "Producto para su mascota"
+}
+
+### Listar leads
+GET http://localhost:8081/api/leads
+
+### Obtener lead por id
+GET http://localhost:8081/api/leads/1
