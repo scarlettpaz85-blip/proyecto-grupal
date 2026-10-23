@@ -29,7 +29,7 @@ El sistema utiliza Flowable Work para gestionar el proceso BPMN. El External Wor
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
-| 23-10-2026 | Flowable Work | Plataforma utilizada para el prototipo BPMN |
-| 23-10-2026 | External Worker | Ejecutar tareas externas y comunicarse con el Web Service |
-| 23-10-2026 | Web Service Java REST | Registrar leads y responder solicitudes del worker |
+| 20-10-2026 | Flowable Work | Plataforma utilizada para el prototipo BPMN |
+| 20-10-2026 | External Worker | Ejecutar tareas externas y comunicarse con el Web Service |
+| 20-10-2026 | Web Service Java REST | Registrar leads y responder solicitudes del worker |
 ```
