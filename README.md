@@ -32,9 +32,6 @@ Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 
 ## Arquitectura
 
-
-## Arquitectura
-
 [Ver diagrama de arquitectura](Arquitectura/Arquitectura.md)
 
 | Componente | Carpeta | Tecnología | Estado |
