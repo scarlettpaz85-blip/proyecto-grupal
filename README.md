@@ -48,7 +48,7 @@ Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 ## Estructura del repositorio
 
 ```text
-├── Actas/             # Actas de reuniones y acuerdos del equipo
+├── Actas/             # Actas de reuniones y preguntas al profesor y emprendedor
 ├── Analisis/           # Análisis del caso, requerimientos y supuestos
 ├── BPMN/               # Modelos BPMN AS-IS y TO-BE y sus exportaciones
 ├── Arquitectura/        # Diagrama de arquitectura y estado de integración
