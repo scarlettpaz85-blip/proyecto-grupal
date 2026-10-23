@@ -30,18 +30,19 @@ El MVP contempla el registro manual de interesados, sin integración automática
 
 Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 
+
+
 ## Arquitectura
 
 [Ver diagrama de arquitectura](Arquitectura/Arquitectura.md)
 
 | Componente | Carpeta | Tecnología | Estado |
 |---|---|---|---|
-| Motor de procesos | `BPMN/` | Flowable Work | Prototipo en desarrollo |
-| Servicios web | `Proyecto-WS/` | Java REST | Prueba local evidenciada |
-| External Worker | `Proyecto-Worker/` | Java | Integración pendiente |
+| Motor de procesos | `BPMN/` | Flowable Work | Proceso integrado y probado |
+| Servicios web | `Proyecto-WS/` | Java REST | Integrado con el External Worker |
+| External Worker | `Proyecto-Worker/` | Java | Integración implementada y probada |
 | Interfaz de usuario | `Proyecto-UI/` | Por definir | Pendiente |
 | Base de datos | Por definir | Por definir | Pendiente |
-
 
 
 
