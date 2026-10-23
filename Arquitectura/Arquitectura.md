@@ -2,27 +2,27 @@
 # Diagrama de arquitectura — Peluditos Pet Chile
 
 
-```mermaid
+
+```mermaid id="7v1m2p"
 flowchart TB
-    F["Flowable Cloud<br/>Proceso BPMN"]
-    W["External Worker<br/>Integración pendiente"]
-    S["Web Service Java REST<br/>Prueba local realizada"]
+    F["Flowable Work<br/>Proceso BPMN"]
+    W["External Worker<br/>Integración implementada"]
+    S["Web Service Java REST<br/>Servicio integrado"]
 
-    F -.->|"Conexión por confirmar"| W
-    W -.->|"Llamada REST por confirmar"| S
-    S -.->|"Respuesta REST"| W
-    W -.->|"Continuación del proceso por confirmar"| F
-
-    F --- NF["Estado: configuración por confirmar"]
-    W --- NW["Estado: conexión pendiente"]
-    S --- NS["Estado: prueba local evidenciada"]
+    F -->|"Tarea disponible"| W
+    W -->|"Llamada REST"| S
+    S -->|"Respuesta REST"| W
+    W -->|"Completar tarea"| F
 ```
+
+
 
 
 ## Estado de implementación
 
-- Web Service Java REST: prueba local evidenciada por Christopher.
-- External Worker: conexión e integración pendientes de confirmar.
-- Integración completa del proceso: pendiente de prueba.
+- Flowable Work: proceso conectado al External Worker.
+- External Worker: integración con Flowable y Web Service implementada.
+- Web Service Java REST: integrado con el External Worker.
+- Integración completa: probada de extremo a extremo.
 
 
