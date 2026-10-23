@@ -32,15 +32,19 @@ Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 
 ## Arquitectura
 
+
+## Arquitectura
+
 [Ver diagrama de arquitectura](Arquitectura/Arquitectura.md)
 
-| Componente | Carpeta | Tecnología | Puerto |
+| Componente | Carpeta | Tecnología | Estado |
 |---|---|---|---|
-| Motor de procesos | – | Flowable REST OSS 7.2 sobre Tomcat 10 | 8080 |
-| Servicios web | `Proyecto-WS/` | Java 21 + Jakarta REST/SOAP | 8081 |
-| External Worker(s) | `Proyecto-Worker/` | Java 21 + Spring Boot | – |
-| Interfaz de usuario | `Proyecto-UI/` | [PHP / JS / otro] | 8000 |
-| Base de datos | – | [PostgreSQL / MySQL / H2] | [ ] |
+| Motor de procesos | `BPMN/` | Flowable Work | Prototipo en desarrollo |
+| Servicios web | `Proyecto-WS/` | Java REST | Prueba local evidenciada |
+| External Worker | `Proyecto-Worker/` | Java | Integración pendiente |
+| Interfaz de usuario | `Proyecto-UI/` | Por definir | Pendiente |
+| Base de datos | Por definir | Por definir | Pendiente |
+
 
 ## Estructura del repositorio
 
