@@ -11,10 +11,8 @@ Proyecto grupal desarrollado para el emprendimiento Peluditos Pet Chile, una pas
 |---|---|---|
 | scarlett paz| scarlettpaz85-blip| Analista de procesos y coordinadora |
 | Jennifer igor|JenniferGor |Modeladora BPMN TO-BE e integradora Flowable|
-| christopher comas|christopher1-01 |Analista BPMN AS-IS y desarrollador de Web Services Java  |
-
-> Los roles rotan semanalmente. El historial de la rotación queda en las actas.
-
+| christopher comas|christopher-comas |Analista BPMN AS-IS y desarrollador de Web Services Java  |> Los roles rotan semanalmente. El historial de la rotación queda en las actas.
+|Belen Eunices| Eunices-TMEB|
 ## Problema y solución
 
 **Problema (AS-IS):** Peluditos Pet Chile recibe consultas por Instagram, Facebook, TikTok y WhatsApp, pero no cuenta con un registro centralizado ni un seguimiento formal de los interesados. Esto dificulta conocer cuántas consultas se convierten en compras y aprovechar oportunidades comerciales en fechas relevantes, como cumpleaños de mascotas, Navidad y el Día del Perro.
