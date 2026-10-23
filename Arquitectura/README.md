@@ -1,18 +1,35 @@
-# Arquitectura
 
-Guardar aquí `modelo-arquitectura.png` (o `.puml` / `.drawio`).
+## Arquitectura
 
-Flujo general:
+El sistema utiliza Flowable Work para gestionar el proceso BPMN. El External Worker ejecuta las tareas externas y se comunica con el Web Service Java REST.
 
-```
-[Usuario] → [Proyecto-UI] → REST → [Flowable REST (motor = fuente de la verdad)]
-                                         ↑ fetch-and-lock (topic)
-                                   [Proyecto-Worker] → REST/SOAP → [Proyecto-WS] → [Base de datos]
+## Flujo general
+
+```text
+[Flowable Work]
+       |
+       | Tarea disponible
+       v
+[External Worker]
+       |
+       | Llamada REST
+       v
+[Web Service Java REST]
+       |
+       | Respuesta REST
+       v
+[External Worker]
+       |
+       | Completar tarea
+       v
+[Flowable Work]
 ```
 
 ## Decisiones de arquitectura
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
-| | Flowable OSS 7.2 | Material del curso basado en 7.2 |
-| | | |
+| 23-10-2026 | Flowable Work | Plataforma utilizada para el prototipo BPMN |
+| 23-10-2026 | External Worker | Ejecutar tareas externas y comunicarse con el Web Service |
+| 23-10-2026 | Web Service Java REST | Registrar leads y responder solicitudes del worker |
+```
