@@ -60,21 +60,20 @@ Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 
 ## Cómo ejecutar
 
-### 1. Flowable REST
-1. Descargar Flowable OSS 7.2: https://github.com/flowable/flowable-engine/releases
-2. Copiar `flowable-rest.war` en `TOMCAT/webapps/` e iniciar Tomcat 10.
-3. Verificar: http://localhost:8080/flowable-rest/docs (usuario `rest-admin`, clave `test`).
-4. Desplegar `BPMN/TO-BE.bpmn` (ver `Pruebas/flowable.http`).
+### 1. Flowable Work
+El prototipo BPMN se desarrolla en Flowable Work. Las instrucciones de despliegue y ejecución se actualizarán cuando se confirme el entorno definitivo.
 
 ### 2. Servicios web
-```bash
-cd Proyecto-WS && ./gradlew run
-```
+El proyecto Java REST se encuentra en `Proyecto-WS/`.
+Christopher compartió evidencia de una prueba local del servicio de registro de leads.
 
 ### 3. External Worker
-```bash
-cd Proyecto-Worker && ./gradlew bootRun
-```
+El worker se encuentra en `Proyecto-Worker/`.
+Su conexión con Flowable Work y la integración con el Web Service están pendientes de completar y validar.
+
+### 4. Interfaz
+La interfaz de usuario se encuentra pendiente de definición e implementación.
+
 
 ### 4. Interfaz
 ```bash
