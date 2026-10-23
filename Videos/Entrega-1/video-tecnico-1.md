@@ -10,7 +10,7 @@
 | 1 | Scarlett Paz | Introducción, arquitectura, actas y coordinación | | |
 | 2 | Christopher Comas Celis | Modelo BPMN AS-IS, lista de web services y web service Java (demo) | 5:20 | [Ver parte](https://drive.google.com/file/d/15I630-FkTQXQq3LZ5sgRyqgQZMyXw9Zm/view) |
 | 3 | Jennifer Igor España | TO-BE, prototipo en Flowable (formularios) y external worker | | |
-| 4 | Belén Trujillo | Aporte en la iteración | | |
+| 4 | Eunices Trujillo | Aporte en la iteración | | |
 
 ## Puntos que se muestran
 - Diagrama de arquitectura como guía de la presentación
