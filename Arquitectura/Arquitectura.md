@@ -16,9 +16,3 @@ flowchart LR
 
     class S probado;
     class F,W pendiente;
-```
-## Estado de los componentes
-
-- **Flowable Enterprise:** [ En desarrollo]
-- **External Worker:** [Planificado]
-- **Web Service Java:** [planificado]
