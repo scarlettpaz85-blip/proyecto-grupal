@@ -43,19 +43,21 @@ Detalle completo en [`Analisis/ANALISIS-CASO.md`](Analisis/ANALISIS-CASO.md).
 | Base de datos | Por definir | Por definir | Pendiente |
 
 
-## Estructura del repositorio
 
-```
-├── Actas/            # Una acta .md por reunión (Acta-AAAA-MM-DD.md)
-├── Analisis/         # Análisis del caso, requerimientos y supuestos
-├── BPMN/             # AS-IS.bpmn, TO-BE.bpmn y exportaciones .png
-├── Arquitectura/     # Diagramas de arquitectura
-├── Prompts/          # Registro de prompts de IA utilizados
-├── Pruebas/          # Archivos .http y evidencias de pruebas
-├── Proyecto-WS/      # Servicios web Java
-├── Proyecto-Worker/  # External Workers de Flowable
-├── Proyecto-UI/      # Interfaz web (bandeja de tareas)
-└── Videos/           # Enlaces a videos por entrega
+##estructura
+
+├── Actas/            # Actas de reuniones y acuerdos del equipo
+├── Analisis/          # Análisis del caso, requerimientos y supuestos
+├── BPMN/              # Modelos BPMN AS-IS y TO-BE y sus exportaciones
+├── Arquitectura/      # Diagrama de arquitectura y estado de integración
+├── Prompts/           # Registro de prompts de IA utilizados
+├── Pruebas/           # Archivos de prueba y evidencias de ejecución
+├── Proyecto-WS/       # Código del Web Service Java REST
+├── Proyecto-Worker/   # Código del External Worker de Flowable
+├── Proyecto-UI/       # Interfaz web y bandeja de tareas (si se implementa)
+└── Videos/             # Videos de presentación por entrega
+
+
 ```
 
 ## Cómo ejecutar
