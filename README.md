@@ -15,7 +15,7 @@ Proyecto grupal desarrollado para el emprendimiento Peluditos Pet Chile, una pas
 |Eunices Trujillo| Eunices-TMEB|Aporte en iteracion
 ## Problema y solución
 
-**Problema (AS-IS):** Peluditos Pet Chile recibe consultas por Instagram, Facebook, TikTok y WhatsApp, pero no cuenta con un registro centralizado ni un seguimiento formal de los interesados. Esto dificulta conocer cuántas consultas se convierten en compras y aprovechar oportunidades comerciales en fechas relevantes, como cumpleaños de mascotas, Navidad y el Día del Perro.
+**Problema (AS-IS):** Peluditos Pet Chile recibe consultas por Instagram y facebook, pero no cuenta con un registro centralizado ni un seguimiento formal de los interesados. Esto dificulta conocer cuántas consultas se convierten en compras y aprovechar oportunidades comerciales en fechas relevantes, como cumpleaños de mascotas, Navidad y el Día del Perro.
 
 **Solución propuesta (TO-BE / MVP):** Desarrollar un sistema de gestión de interesados (*leads*) mediante procesos BPMN en Flowable, que permita:
 
