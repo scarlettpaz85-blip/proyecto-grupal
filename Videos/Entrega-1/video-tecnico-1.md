@@ -1,6 +1,6 @@
 # Video técnico para el profesor – Entrega 1
 
-- **Enlace video completo:** ()https://drive.google.com/file/d/1GJtQB5RXTohd7Qa9ARva4t_46ob9FYRN/view?usp=drive_link
+- **Enlace video completo:** (https://drive.google.com/file/d/1GJtQB5RXTohd7Qa9ARva4t_46ob9FYRN/view?usp=drive_link)
 - **Fecha de grabación:** 2026-10-23
 
 ## Participación individual
