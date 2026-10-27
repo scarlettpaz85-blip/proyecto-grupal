@@ -1,8 +1,8 @@
 # Video para el emprendedor (no técnico) – Entrega 1
 
-- **Enlace:** [pegar enlace YouTube (no listado) / Drive]
-- **Duración:** mm:ss (5–10 min)
-- **Fecha de grabación:** AAAA-MM-DD
+- **Enlace:** https://drive.google.com/file/d/1wTU2ZxROsql75rulG146Zg7gJXSi3LUa/view?usp=sharing
+- **Duración:** 07:58 (5–10 min)
+- **Fecha de grabación:** 26-10-2026
 
 ## Guion sugerido (lenguaje simple, sin tecnicismos)
 1. ¿Qué problema del negocio estamos resolviendo?
