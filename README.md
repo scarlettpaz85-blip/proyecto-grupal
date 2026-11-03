@@ -39,12 +39,12 @@ El MVP considera registro manual de interesados, sin integración automática co
 
 | Componente | Carpeta | Tecnología | Estado Entrega 2 |
 |---|---|---|---|
-| Interfaz propia | `Proyecto-UI/` | TypeScript + React + Vite | En desarrollo |
+| Interfaz propia | `Proyecto-UI/` | TypeScript + React + Vite | En desarrollo (pantallas de registro, bandeja y lista subidas) |
 | Motor de procesos | – | Flowable OSS 7.2 (Tomcat 10 + flowable-rest) | En desarrollo |
 | BD del motor | – | PostgreSQL | En desarrollo |
 | External worker | `Proyecto-Worker/` | Java 21 | Implementado; integración con Flowable OSS en desarrollo |
 | Web service | `Proyecto-WS/` | Java 21 + Jakarta REST (Jersey) | Implementado y probado (Entrega 1); conexión a BD en desarrollo |
-| BD de negocio | `Proyecto-WS/sql/` | PostgreSQL | En desarrollo |
+| BD de negocio | `Proyecto-WS/sql/` | Microsoft SQL Server 2017 | En desarrollo (6 tablas creadas) |
 
 > Esta tabla se actualiza a medida que cada componente se integra y prueba.
 
@@ -67,11 +67,11 @@ El MVP considera registro manual de interesados, sin integración automática co
 ## Cómo ejecutar (entorno local)
 
 Orden de arranque:
-1. **PostgreSQL** con las bases `flowable` (motor) y `peluditos` (negocio).
+1. **Bases de datos:** PostgreSQL con la base `flowable` (motor de Flowable) y SQL Server 2017 con la base `peluditos` (negocio; script en `Proyecto-WS/sql/`).
 2. **Flowable OSS:** Tomcat 10 con `flowable-rest`, en `http://localhost:8080/flowable-rest` (credenciales de desarrollo `rest-admin` / `test`). Desplegar `BPMN/TO-BE.bpmn`.
 3. **Web service:** `cd Proyecto-WS` → `gradlew.bat run` → `http://localhost:8081/api/health`.
 4. **External worker:** ver [`Proyecto-Worker/README.md`](Proyecto-Worker/README.md).
-5. **Interfaz:** ver [`Proyecto-UI/README.md`](Proyecto-UI/README.md).
+5. **Interfaz:** `cd Proyecto-UI` → `npm install` → `npm run dev` → `http://localhost:3000`. Ver [`Proyecto-UI/README.md`](Proyecto-UI/README.md).
 
 Las instrucciones detalladas de cada componente están en el README de su carpeta.
 
