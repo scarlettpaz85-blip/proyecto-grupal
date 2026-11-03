@@ -25,11 +25,12 @@ Credenciales de Flowable OSS (solo desarrollo local): `rest-admin` / `test`.
 
 | Orden | Actividad (id) | Tipo | Quién la ejecuta |
 |---|---|---|---|
-| 1 | `registrarLead` – Registrar y Clasificar Lead | User task | Interfaz (completa la tarea) |
-| 2 | `procesarWS` – Procesar Web Service Lead | External worker task (topic `peluditos-lead-topic`) | Worker → `POST /api/leads` |
-| 3 | `realizarSeguimiento` – Realizar seguimiento | User task | Interfaz → `POST /api/leads/{id}/seguimientos` |
-| 4 | Gateway ¿Compró? | Exclusive gateway | Variable `compro` |
-| 5 | Cierre (convertido / no convertido) | External worker o user task | `PUT /api/leads/{id}/cierre` |
+| 1 | `registrarLead` – Registrar y clasificar lead | User task | Interfaz (completa la tarea con los datos del lead y `servicioRequerido`) |
+| 2 | `procesarWS` – Registrar lead en el sistema | External worker task (topic `peluditos-lead-topic`) | Worker → `POST /api/leads` → devuelve `leadId` |
+| 3 | `realizarSeguimiento` – Realizar seguimiento | User task | Interfaz (completa con `compro` y `motivoNoCompra`) |
+| 4 | `cerrarLead` – Registrar cierre del lead | External worker task (topic `peluditos-cierre-topic`) | Worker → `PUT /api/leads/{leadId}/cierre` |
+| 5 | `gwCompro` – ¿Compró? | Exclusive gateway | `${compro == true}` → Gestionar pedido; si no → Lead no convertido |
+| 6 | `gestionarPedido` – Gestionar pedido | User task | Interfaz |
 
 ## 3. Variables del proceso (nombres EXACTOS)
 
