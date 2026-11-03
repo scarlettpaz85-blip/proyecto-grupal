@@ -13,7 +13,7 @@ Proyecto grupal para el emprendimiento **Peluditos Pet Chile**, dedicado a la re
 | Christopher Comas Celis | `christopher-comas` | Modelo AS-IS y web service Java | Coordinación, BPMN y pruebas de punta a punta |
 | Jennifer Igor España | `JenniferGor` | Modelo TO-BE y Flowable | Base de datos de negocio y web services |
 | Scarlett Paz Araya | `scarlettpaz85-blip` | Coordinación y análisis | Flowable OSS y external worker |
-| Eunices (Belén) Trujillo | `Eunices-TMEB` | Video para la emprendedora | Interfaz propia completa |
+| Eunices Belén Trujillo | `Eunices-TMEB` | Video para la emprendedora | Interfaz propia completa |
 
 > Los roles rotan por entrega. El detalle de la asignación queda registrado en las [actas](Actas).
 
