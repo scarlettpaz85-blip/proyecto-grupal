@@ -3,10 +3,10 @@
 | Archivo | Herramienta | Descripción |
 |---|---|---|
 | `AS-IS.bpmn` / `AS-IS.svg` | bpmn.io (varios pools) | Proceso actual de Peluditos Pet Chile: atención de consultas (Problema 1) y recontacto en fechas especiales (Problema 2) |
-| `TO-BE.bpmn` | Flowable Design | Proceso propuesto, ejecutable en Flowable |
+| `TO-BE.bpmn` / `TO-BE.png` | Editado para Flowable OSS 7.2 | Proceso propuesto, **ejecutable en Flowable OSS** (clave `peluditosLead`) |
 | `gestion-lead-minimo.bpmn20.xml` | Flowable | Proceso mínimo de prueba |
 
-> Según indicación del profesor: el TO-BE se modela directamente en Flowable Design para no mantener dos modelos en paralelo.
+> En la Entrega 1 el TO-BE se modeló en Flowable Design (Enterprise). Para la Entrega 2 se adaptó a **Flowable OSS**: se quitaron los formularios de Enterprise (ahora las tareas se completan desde la interfaz propia) y las tareas de servicio son External Worker Tasks.
 
 ## AS-IS – Descripción
 
@@ -37,11 +37,49 @@ Las tareas se modelaron de forma **genérica** (por ejemplo, "Preparar pedido"),
 - No existe hoy ningún registro de consultas, clientes ni mascotas.
 - Las campañas se difunden por publicaciones en redes o mensajes uno a uno por WhatsApp.
 
+## TO-BE – Descripción (v2, Flowable OSS)
+
+![TO-BE](TO-BE.png)
+
+**Flujo:** Consulta recibida → **Registrar y clasificar lead** (interfaz) → **Registrar lead en el sistema** (worker → `POST /api/leads`) → **Realizar seguimiento** (interfaz) → **Registrar cierre del lead** (worker → `PUT /api/leads/{id}/cierre`) → **¿Compró?** → Sí: **Gestionar pedido** → *Lead convertido en cliente* · No: *Lead no convertido*.
+
+| Actividad (id) | Tipo | Ejecuta |
+|---|---|---|
+| `registrarLead` | User task | Interfaz propia |
+| `procesarWS` | External worker task – topic `peluditos-lead-topic` | Proyecto-Worker → Proyecto-WS |
+| `realizarSeguimiento` | User task | Interfaz propia |
+| `cerrarLead` | External worker task – topic `peluditos-cierre-topic` | Proyecto-Worker → Proyecto-WS |
+| `gwCompro` | Exclusive gateway (`${compro == true}`; por defecto: no convertido) | Motor |
+| `gestionarPedido` | User task | Interfaz propia |
+
+**Cómo resuelve los dolores del AS-IS:**
+
+| Dolor del AS-IS | Mejora en el TO-BE |
+|---|---|
+| No se registra la consulta ni el canal | `registrarLead` + `procesarWS` guardan el lead con su canal en la base de datos |
+| Si el cliente no responde, no hay recontacto | `realizarSeguimiento` queda como tarea pendiente en la bandeja hasta que se resuelve |
+| No se sabe por qué no compró ni cuántos compran | `cerrarLead` registra `compro` y `motivoNoCompra`, lo que permite medir la conversión |
+| No se registra al cliente | El lead convertido queda identificado en la base de datos (base para el registro de clientes) |
+| Fechas que dependen de la memoria (Proceso 2) | Planificado para la Entrega 3: oportunidades por fechas relevantes |
+
+**Cambios respecto de la Entrega 1:**
+- Se reemplazó la tarea simulada (Service Task tipo *Expression*) por **External Worker Tasks reales**.
+- Se eliminaron los formularios de Flowable Enterprise; la interfaz propia completa las tareas.
+- Se agregaron el seguimiento con resultado y el cierre del lead.
+- Las ramas por producto (repostería, baños, repuestos) se reemplazaron por una tarea genérica **"Gestionar pedido"**, según la indicación del profesor de modelar de forma genérica. El tipo de producto se conserva en la variable `servicioRequerido`.
+
 ## Variables del proceso (TO-BE)
 
-| Variable | Tipo | Origen (formulario / worker) | Uso |
+| Variable | Tipo | Origen | Uso |
 |---|---|---|---|
-| | | | |
+| `nombre`, `telefono`, `correo`, `canal`, `interes` | string | Interfaz (registro) | Worker → WS |
+| `servicioRequerido` | string (`reposteria`, `banos`, `repuestos`) | Interfaz (clasificación) | Gestionar pedido |
+| `leadId` | integer | Worker (respuesta del WS) | Cierre del lead |
+| `registrado` | boolean | Worker | Control |
+| `compro` | boolean | Interfaz (seguimiento) | Gateway ¿Compró? y cierre |
+| `motivoNoCompra` | string | Interfaz (seguimiento) | Cierre del lead |
+
+Detalle completo en [`ACUERDOS-INTEGRACION.md`](../ACUERDOS-INTEGRACION.md).
 
 ## Historial de versiones
 
@@ -49,3 +87,4 @@ Las tareas se modelaron de forma **genérica** (por ejemplo, "Preparar pedido"),
 |---|---|---|---|
 | 2026-10-17 | v1.0 | AS-IS atención de consultas y recontacto de clientes (dos archivos) | Christopher Comas Celis |
 | 2026-10-20 | v1.1 | Unificación en `AS-IS.bpmn` según documento de la Entrega 1; tareas genéricas; evidencia del Instagram | Christopher Comas Celis |
+| 2026-11-02 | TO-BE v2 | TO-BE adaptado a Flowable OSS (External Worker Tasks, seguimiento y cierre, tareas genéricas) | Christopher Comas Celis |
