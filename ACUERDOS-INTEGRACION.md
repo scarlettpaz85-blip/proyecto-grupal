@@ -12,11 +12,11 @@
 | BD del motor | – | PostgreSQL | `localhost:5432` / base `flowable` | Scarlett Paz Araya |
 | External worker | `Proyecto-Worker/` | Java 21 | (sin puerto, consulta a Flowable) | Scarlett Paz Araya |
 | Web service | `Proyecto-WS/` | Java 21 + Jersey | `http://localhost:8081/api` | Jennifer Igor España |
-| BD de negocio | `Proyecto-WS/sql/` | PostgreSQL | `localhost:5432` / base `peluditos` | Jennifer Igor España |
+| BD de negocio | `Proyecto-WS/sql/` | Microsoft SQL Server 2017 | `localhost:1433` / base `peluditos` | Jennifer Igor España |
 | BPMN, arquitectura, actas, pruebas E2E | `BPMN/`, `Arquitectura/`, `Actas/`, `Pruebas/` | – | – | Christopher Comas Celis |
 
 Credenciales de Flowable OSS (solo desarrollo local): `rest-admin` / `test`.
-**Nunca subir contraseñas reales ni tokens al repositorio.**
+**Nunca subir contraseñas reales ni tokens al repositorio.** La conexión a SQL Server se configura con variables de entorno o un archivo local no versionado (por ejemplo `db.properties` incluido en `.gitignore`), con un ejemplo `db.properties.example` en el repo.
 
 ## 2. Proceso BPMN
 
@@ -60,7 +60,7 @@ Credenciales de Flowable OSS (solo desarrollo local): `rest-admin` / `test`.
 | `POST /api/clientes` | datos del cliente y mascota | cliente (201) | Pendiente |
 
 Errores: JSON `{"error": "mensaje"}` con 400 / 404 / 500.
-**CORS:** el WS y Flowable deben permitir el origen de la interfaz.
+**CORS:** no es necesario configurarlo: la interfaz usa el proxy de Vite (`/flowable-rest` → `:8080`, `/api` → `:8081`).
 
 ## 5. Llamadas de la interfaz a Flowable OSS
 
