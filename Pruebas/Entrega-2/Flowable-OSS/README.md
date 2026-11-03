@@ -15,7 +15,6 @@ Se verifica el funcionamiento del servicio REST de Flowable OSS mediante una res
 
 ## 2. Despliegue del proceso TO-BE
 
-### 02. Despliegue del proceso TO-BE
 
 Se evidencia el despliegue del archivo `TO-BE (2).bpmn` en el motor Flowable OSS mediante el servicio REST. La respuesta confirma la creación del despliegue.
 
