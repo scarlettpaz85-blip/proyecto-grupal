@@ -51,6 +51,8 @@ Se inicia correctamente una instancia del proceso `peluditosLead` en Flowable OS
 
 ### 07. Creación de la tarea Registrar y clasificar lead
 
+![Tarea registrar lead](07-registrar-lead.png)
+
 Se consulta la instancia del proceso y se comprueba la creación de la primera tarea humana, correspondiente al registro y clasificación del interesado.
 
 
