@@ -7,7 +7,7 @@
 
 | Componente | Carpeta | Tecnología | Puerto / URL | Responsable |
 |---|---|---|---|---|
-| Interfaz propia | `Proyecto-UI/` | (a definir por Belén) | `http://localhost:3000` (o el que use) | Belén (Eunices) Trujillo |
+| Interfaz propia | `Proyecto-UI/` | TypeScript + React + Vite | `http://localhost:3000` | Belén (Eunices) Trujillo |
 | Motor de procesos | – | Flowable OSS 7.2 (Tomcat 10 + flowable-rest) | `http://localhost:8080/flowable-rest` | Scarlett Paz Araya |
 | BD del motor | – | PostgreSQL | `localhost:5432` / base `flowable` | Scarlett Paz Araya |
 | External worker | `Proyecto-Worker/` | Java 21 | (sin puerto, consulta a Flowable) | Scarlett Paz Araya |

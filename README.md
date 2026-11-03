@@ -39,7 +39,7 @@ El MVP considera registro manual de interesados, sin integración automática co
 
 | Componente | Carpeta | Tecnología | Estado Entrega 2 |
 |---|---|---|---|
-| Interfaz propia | `Proyecto-UI/` | (definida por Belén) | En desarrollo |
+| Interfaz propia | `Proyecto-UI/` | TypeScript + React + Vite | En desarrollo |
 | Motor de procesos | – | Flowable OSS 7.2 (Tomcat 10 + flowable-rest) | En desarrollo |
 | BD del motor | – | PostgreSQL | En desarrollo |
 | External worker | `Proyecto-Worker/` | Java 21 | Implementado; integración con Flowable OSS en desarrollo |
