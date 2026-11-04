@@ -1,0 +1,16 @@
+# Gradle
+.gradle/
+**/.gradle/
+**/build/
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Configuración privada
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
