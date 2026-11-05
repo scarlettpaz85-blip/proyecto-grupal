@@ -1,6 +1,6 @@
 # Peluditos Pet Chile — Integración Flowable, Worker y Web Service
 
-responsable: Scarlett Paz
+Responsable: Scarlett Paz
 
 **Entrega 2 · Evidencias técnicas**
 
