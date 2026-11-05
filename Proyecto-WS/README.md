@@ -14,6 +14,7 @@ Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle,
 - Microsoft SQL Server 2017.
 - JDBC para conexión y persistencia de datos.
 - Git y GitHub para control de versiones.
+- Microsoft JDBC Driver for SQL Server 13.2.1.jre11.
 
 ## 2. Estructura del componente
 

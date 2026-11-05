@@ -1,3 +1,4 @@
+
 plugins {
     java
     application
@@ -11,7 +12,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+}
 
 val jersey = "3.1.9"
 
@@ -19,6 +22,17 @@ dependencies {
     implementation("org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey")
     implementation("org.glassfish.jersey.inject:jersey-hk2:$jersey")
     implementation("org.glassfish.jersey.media:jersey-media-json-binding:$jersey")
+
+    // Driver JDBC para conectar Java con Microsoft SQL Server
+    implementation("com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11")
 }
 
-application { mainClass.set("cl.peluditos.ws.Main") }
+application {
+    mainClass.set("cl.peluditos.ws.Main")
+}
+
+tasks.register<JavaExec>("testDatabase") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("cl.peluditos.ws.Database")
+}
+
