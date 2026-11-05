@@ -133,7 +133,7 @@ Las capturas se agrupan por etapa. Las imágenes 13 y 14 documentan las primeras
 
 **01. Configuración de red de SQL Server**
 
-![Configuración de red de SQL Server](01_sql_server.png)
+![Configuración de red de SQL Server](01.png)
 
 **02. Puerto TCP 1433**
 
