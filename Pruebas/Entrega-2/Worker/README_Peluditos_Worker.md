@@ -148,4 +148,4 @@ Se evidencia la recepción del trabajo de `peluditos-cierre-topic`, con `compro=
 ![Verificación del lead no convertido en SQL Server](24_Evidencia23_SQLServer_Lead_No_Convertido.png)
 La consulta a `dbo.Leads` confirma que el lead con ID `5` quedó con estado `No convertido` y que el motivo `No tiene presupuesto por ahora` se almacenó en la columna `motivo_no_compra`.
 ---
-Resultado: se verificó el recorrido Flowable → External Worker → Web Service → SQL Server para el registro y cierre de leads convertidos y no convertidos. En la prueba de no conversión se confirmó el almacenamiento del motivo en SQL Server. También se verificó la persistencia del
+Resultado: se verificó el recorrido Flowable → External Worker → Web Service → SQL Server para el registro y cierre de leads convertidos y no convertidos. En la prueba de no conversión se confirmó el almacenamiento del motivo en SQL Server. También se verificó la persistencia del motor Flowable en PostgreSQL.
