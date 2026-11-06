@@ -216,5 +216,30 @@ Las capturas se agrupan por etapa. Las imágenes 13 y 14 documentan las primeras
 ![Cierre del lead con PostgreSQL](20_Evidencia_Worker_PostgreSQL_Cierre.png)
 
 ---
+**21. Estado inicial de SQL Server antes de la prueba de lead no convertido**
 
-**Resultado:** se verificó el recorrido Flowable → External Worker → Web Service → SQL Server para el registro y cierre de leads, y la persistencia del motor Flowable en PostgreSQL.
+![Estado inicial de SQL Server](21_Evidencia_SQLServer_Leads_Antes_Prueba_NoConvertido.png)
+
+Se muestran los registros existentes en la tabla `dbo.Leads` antes de ejecutar la prueba del lead no convertido.
+
+**22. Registro del lead mediante Worker y Web Service (HTTP 201)**
+
+![Registro del lead mediante Worker](22_Registro_Lead_Worker_HTTP201.png)
+
+Se evidencia la recepción del trabajo por parte del Worker, la llamada al Web Service y la respuesta HTTP 201, confirmando el registro exitoso del lead con ID 5.
+
+**23. Cierre del lead no convertido (HTTP 200)**
+
+![Cierre del lead no convertido](23_Cierre_Lead_No_Convertido_HTTP200.png)
+
+Se evidencia el cierre del proceso con `compro=false` y el motivo "No tiene presupuesto por ahora". El Web Service responde HTTP 200 y confirma el estado No convertido.
+
+**24. Verificación del lead no convertido en SQL Server**
+
+![Verificación del lead no convertido](24_Evidencia23_SQLServer_Lead_No_Convertido.png)
+
+Se comprueba que el lead con ID 5 quedó registrado con estado No convertido y que el motivo de no compra se almacenó correctamente en SQL Server.
+
+---
+
+**Resultado:** se verificó el recorrido Flowable → External Worker → Web Service → SQL Server para el registro y cierre de leads convertidos y no convertidos, incluyendo el almacenamiento del motivo de no compra.
