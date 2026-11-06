@@ -243,7 +243,7 @@ Se comprueba que el lead con ID 5 quedó registrado con estado No convertido y q
 ---
 **25. Finalización del proceso de lead no convertido en Flowable**
 
-![Finalización del proceso de lead no convertido](25_Evidencia_Flowable_Fin_Lead_No_Convertido:.png)
+![Finalización del proceso de lead no convertido](25_Evidencia_Flowable_Fin_Lead_No_Convertido_.png)
 
 Se evidencia que la instancia del proceso finalizó correctamente y alcanzó la actividad `finNoConvertido`, confirmando que el camino de no conversión llegó al evento final definido en BPMN.
 
