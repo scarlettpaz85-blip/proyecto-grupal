@@ -241,5 +241,10 @@ Se evidencia el cierre del proceso con `compro=false` y el motivo "No tiene pres
 Se comprueba que el lead con ID 5 quedó registrado con estado No convertido y que el motivo de no compra se almacenó correctamente en SQL Server.
 
 ---
+**25. Finalización del proceso de lead no convertido en Flowable**
+
+![Finalización del proceso de lead no convertido](25_Evidencia_Flowable_Fin_Lead_No_Convertido.png)
+
+Se evidencia que la instancia del proceso finalizó correctamente y alcanzó la actividad `finNoConvertido`, confirmando que el camino de no conversión llegó al evento final definido en BPMN.
 
 **Resultado:** se verificó el recorrido Flowable → External Worker → Web Service → SQL Server para el registro y cierre de leads convertidos y no convertidos, incluyendo el almacenamiento del motivo de no compra.
