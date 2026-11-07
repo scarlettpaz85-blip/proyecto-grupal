@@ -1,4 +1,4 @@
-# # Proyecto-WS – Web Services Java
+# Proyecto-WS – Web Services Java
 
 Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle, Jakarta REST, Jersey y servidor Grizzly.
 
@@ -11,7 +11,7 @@ Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle,
 - Gradle.
 - Jakarta REST (Jersey 3).
 - Servidor Grizzly.
-- Microsoft SQL Server 2017.
+- Microsoft SQL Server 20.1.
 - JDBC para conexión y persistencia de datos.
 - Git y GitHub para control de versiones.
 - Microsoft JDBC Driver for SQL Server 13.2.1.jre11.
@@ -187,16 +187,32 @@ Se incorpora `CorsFilter.java` para gestionar las solicitudes de origen cruzado 
 
 ## 8. Integración con Flowable y External Worker
 
-El servicio dispone de operaciones REST para la gestión de leads y clientes.
+El Web Service Java dispone de operaciones REST para integrarse con el proceso de negocio gestionado mediante Flowable OSS y un External Worker.
 
-El contrato previsto para el proceso considera:
+### 8.1 Comunicación entre componentes
 
-1. El Worker recibe las variables del proceso, como `nombre`, `canal` e `interes`.
-2. Invoca `POST /api/leads` para registrar el interesado.
-3. Obtiene el identificador del lead desde la respuesta.
-4. Devuelve las variables `leadId` y `registrado` al proceso Flowable.
+Para permitir la comunicación entre los computadores de los integrantes, se utilizó Tailscale, una red privada que facilita el acceso al Web Service Java.
 
-La integración completa de los componentes debe verificarse mediante pruebas de punta a punta.
+Se verificó que el equipo remoto podía consultar el endpoint `GET /api/health` y obtener una respuesta correcta.
+
+### 8.2 Registro y cierre de leads
+
+El proceso de integración contempla:
+
+1. Flowable gestiona las tareas del proceso de negocio.
+2. El External Worker recibe las variables del proceso.
+3. El Worker utiliza `POST /api/leads` para registrar interesados.
+4. El Web Service Java almacena la información en SQL Server.
+5. El Worker utiliza `PUT /api/leads/{id}/cierre` para actualizar el resultado comercial.
+6. SQL Server conserva el estado del lead como `Convertido` o `No convertido`.
+
+### 8.3 Resultados observados
+
+Durante las pruebas realizadas con el equipo se verificó la comunicación remota con el Web Service Java y se observaron registros de prueba en SQL Server.
+
+También se comprobaron registros con los estados comerciales `Convertido` y `No convertido`, incluyendo motivos de no compra.
+
+Estas verificaciones respaldan el funcionamiento de la persistencia y actualización de los datos. Las evidencias de la ejecución completa del proceso se gestionan por separado en las pruebas de punta a punta del equipo.
 
 ## 9. Pruebas y evidencias
 
@@ -206,6 +222,19 @@ Las evidencias del componente se encuentran en:
 - `BaseDatos-Java/Evidencias-Java/`
 
 Incluyen capturas de creación de tablas, conexión con SQL Server, compilación, ejecución del servicio, operaciones REST y verificaciones de persistencia.
+
+Durante las pruebas se verificaron las siguientes operaciones:
+
+- Conexión JDBC con SQL Server.
+- Compilación del proyecto mediante Gradle.
+- Ejecución del servicio REST.
+- Consulta del estado del servicio mediante `/api/health`.
+- Registro de leads mediante `POST /api/leads`.
+- Consulta de leads mediante `GET /api/leads`.
+- Consulta individual de leads mediante `GET /api/leads/{id}`.
+- Registro de seguimientos.
+- Actualización de estados comerciales mediante `PUT /api/leads/{id}/cierre`.
+- Verificación de los estados `Convertido` y `No convertido` directamente en SQL Server.
 
 Los scripts de consultas de verificación permiten revisar los registros almacenados en la base de datos.
 
@@ -221,6 +250,8 @@ El componente cuenta con:
 - Cierre de leads.
 - Registro de clientes.
 - Configuración CORS.
-- Evidencias de pruebas y persistencia.
+- Evidencias de compilación, ejecución y pruebas de persistencia.
+- Comunicación remota comprobada entre el Web Service Java y el equipo de Scarlett mediante Tailscale.
+- Verificación en SQL Server de registros con estados `Convertido` y `No convertido`.
 
-La integración completa con Flowable, el External Worker y la interfaz debe validarse en el recorrido de punta a punta del proyecto.
+La validación completa del recorrido de punta a punta, incluyendo la interfaz, Flowable, External Worker y gestión de pedidos, corresponde a las pruebas de integración del equipo.
