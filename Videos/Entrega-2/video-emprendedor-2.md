@@ -1,7 +1,7 @@
 # Video para la emprendedora (no técnico) – Entrega 2
 
 - **Enlace:** [Ver video](https://drive.google.com/file/d/1_4j5dZ_W6n37Is8I6pP5LkBst6NnP79O/view?usp=sharing)
-- **Duración:** MM:SS
+- **Duración:** 07:20
 - **Fecha de grabación:** 2026-11-09
 - **Presenta:** Christopher Comas Celis
 
