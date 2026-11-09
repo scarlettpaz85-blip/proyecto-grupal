@@ -1,20 +1,19 @@
 # Video técnico para el profesor – Entrega 2
 
-- **Enlace:** [pegar enlace YouTube (no listado) / Drive]
-- **Duración:** mm:ss (5–10 min)
-- **Fecha de grabación:** AAAA-MM-DD
+- **Formato:** un video por integrante (máximo 5 minutos cada uno), en el orden de la tabla.
+- **Fecha de grabación:** 2026-11-08 al 2026-11-09
 
 ## Participación individual (cada integrante explica su trabajo)
 
-
-| Minuto | Integrante | Tema / componente | Enlace del video  |
+| Orden | Integrante | Tema / componente | Enlace del video |
 |---|---|---|---|
-| 00:00 | Por completar | Introducción y arquitectura | [Ver video](PEGAR_ENLACE) |
-| Por completar | Por completar | BPMN y despliegue en Flowable | [Ver video](PEGAR_ENLACE) |
-| 02:12 | Scarlett Paz Araya| Servicios web / External Worker | [Ver video](https://drive.google.com/file/d/1en_gwj_1Y8YeH-cLhqhMUmbzcp9R4cI9/view?usp=drive_link) |
-| Por completar | Por completar | UI y demo end-to-end | [Ver video](PEGAR_ENLACE) |
+| 1 | Christopher Comas Celis | Introducción, arquitectura, BPMN TO-BE y prueba de punta a punta | [Ver video](https://drive.google.com/file/d/1_4j5dZ_W6n37Is8I6pP5LkBst6NnP79O/view?usp=sharing) |
+| 2 | Scarlett Paz Araya | Flowable OSS y External Worker | [Ver video](https://drive.google.com/file/d/1en_gwj_1Y8YeH-cLhqhMUmbzcp9R4cI9/view?usp=drive_link) |
+| 3 | Jennifer Igor España | Web service y base de datos SQL Server | [Ver video](PEGAR_LINK_JENNIFER) |
+| 4 | Eunices Belén Trujillo | Interfaz propia y demo | [Ver video](PEGAR_LINK_BELEN) |
 
-## Puntos a mostrar
-- Commits y actas que respaldan el avance
+## Puntos que se muestran
+- Arquitectura y commits/actas que respaldan el avance
 - Ejecución real (instancias y tareas en el motor)
-- Uso de IA y prompts (si aplica)
+- Prueba de punta a punta: [`Pruebas/Entrega-2/E2E/`](../../Pruebas/Entrega-2/E2E)
+- Uso de IA y prompts: [`Prompts/`](../../Prompts)
