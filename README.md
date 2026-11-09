@@ -39,14 +39,14 @@ El MVP considera registro manual de interesados, sin integración automática co
 
 | Componente | Carpeta | Tecnología | Estado Entrega 2 |
 |---|---|---|---|
-| Interfaz propia | `Proyecto-UI/` | TypeScript + React + Vite | En desarrollo (pantallas de registro, bandeja y lista subidas) |
-| Motor de procesos | – | Flowable OSS 7.2 (Tomcat 10 + flowable-rest) | En desarrollo |
-| BD del motor | – | PostgreSQL | En desarrollo |
-| External worker | `Proyecto-Worker/` | Java 21 | Implementado; integración con Flowable OSS en desarrollo |
-| Web service | `Proyecto-WS/` | Java 21 + Jakarta REST (Jersey) | Implementado y probado (Entrega 1); conexión a BD en desarrollo |
-| BD de negocio | `Proyecto-WS/sql/` | Microsoft SQL Server 2017 | En desarrollo (6 tablas creadas) |
+| Interfaz propia | `Proyecto-UI/` | TypeScript + React + Vite | Implementado y probado de punta a punta |
+| Motor de procesos | – | Flowable OSS 7.2 (Tomcat 10 + flowable-rest) | Implementado: TO-BE desplegado y ejecutado |
+| BD del motor | – | PostgreSQL | Implementado |
+| External worker | `Proyecto-Worker/` | Java 21 | Implementado: atiende los tópicos de registro y cierre |
+| Web service | `Proyecto-WS/` | Java 21 + Jakarta REST (Jersey) | Implementado y conectado a SQL Server |
+| BD de negocio | `Proyecto-WS/BaseDatos-Java/` | Microsoft SQL Server 2017 | Implementado (base `DB_PeluditosPetChile`) |
 
-> Esta tabla se actualiza a medida que cada componente se integra y prueba.
+> Prueba de punta a punta exitosa el 07-11-2026, con los dos caminos del proceso (compró / no compró). Evidencias en [`Pruebas/Entrega-2/E2E/`](Pruebas/Entrega-2/E2E).
 
 ## Estructura del repositorio
 
@@ -67,7 +67,7 @@ El MVP considera registro manual de interesados, sin integración automática co
 ## Cómo ejecutar (entorno local)
 
 Orden de arranque:
-1. **Bases de datos:** PostgreSQL con la base `flowable` (motor de Flowable) y SQL Server 2017 con la base `peluditos` (negocio; script en `Proyecto-WS/sql/`).
+1. **Bases de datos:** PostgreSQL con la base `flowable` (motor de Flowable) y SQL Server 2017 con la base `DB_PeluditosPetChile` (negocio; scripts en `Proyecto-WS/BaseDatos-Java/Scripts/`).
 2. **Flowable OSS:** Tomcat 10 con `flowable-rest`, en `http://localhost:8080/flowable-rest` (credenciales de desarrollo `rest-admin` / `test`). Desplegar `BPMN/TO-BE.bpmn`.
 3. **Web service:** `cd Proyecto-WS` → `gradlew.bat run` → `http://localhost:8081/api/health`.
 4. **External worker:** ver [`Proyecto-Worker/README.md`](Proyecto-Worker/README.md).
@@ -80,7 +80,7 @@ Las instrucciones detalladas de cada componente están en el README de su carpet
 | Entrega | Fecha | Estado | Videos |
 |---|---|---|---|
 | Entrega 1 – Diagnóstico, propuesta y prototipo | 26-10-2026 | Enviada | [Videos/Entrega-1](Videos/Entrega-1) |
-| Entrega 2 – Flowable OSS, interfaz propia y persistencia | 09-11-2026 | En desarrollo | [Videos/Entrega-2](Videos/Entrega-2) |
+| Entrega 2 – Flowable OSS, interfaz propia y persistencia | 09-11-2026 | Enviada | [Videos/Entrega-2](Videos/Entrega-2) |
 | Entrega 3 | – | Pendiente | [Videos/Entrega-3](Videos/Entrega-3) |
 | Entrega 4 – Final (examen) | – | Pendiente | [Videos/Entrega-4](Videos/Entrega-4) |
 
