@@ -1,8 +1,8 @@
 # Video técnico para el profesor – Entrega 2
 
-- **Enlace:** [pegar enlace YouTube (no listado) / Drive]
+- **Enlace:** [https://drive.google.com/file/d/1nf8EAV-c-QcIBnfdGYYtPQIrx8pWAMmr/view?usp=sharing]
 - **Duración:** mm:ss (5–10 min)
-- **Fecha de grabación:** AAAA-MM-DD
+- **Fecha de grabación:** 09-11-2026
 
 ## Participación individual (cada integrante explica su trabajo)
 
