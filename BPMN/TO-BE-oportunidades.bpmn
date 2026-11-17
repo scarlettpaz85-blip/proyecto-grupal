@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://peluditospetchile.cl/bpmn">
+
+  <process id="peluditosOportunidad" name="Peluditos Pet Chile - Oportunidades comerciales (TO-BE)" isExecutable="true">
+    <documentation>Proceso 2 – Gestión de oportunidades comerciales: recontacto de clientes existentes en fechas relevantes (Navidad, cumpleaños de mascotas, campañas). Ejecutable en Flowable OSS 7.2. Las tareas de usuario se completan desde Proyecto-UI; las de servicio son External Worker Tasks atendidas por Proyecto-Worker, que invoca a Proyecto-WS.</documentation>
+
+    <startEvent id="inicioCampana" name="Campaña iniciada">
+      <documentation>La emprendedora inicia la campaña desde la interfaz eligiendo una fecha relevante. Variables de inicio: idFechaRelevante (int), nombreCampana (string).</documentation>
+    </startEvent>
+    <sequenceFlow id="o1" sourceRef="inicioCampana" targetRef="generarOportunidades"/>
+
+    <serviceTask id="generarOportunidades" name="Generar oportunidades de la campaña" flowable:type="external-worker" flowable:topic="peluditos-oportunidades-topic">
+      <documentation>Automática. External worker: POST /api/oportunidades/generar con idFechaRelevante y processInstanceId. El WS busca los clientes que aceptan comunicaciones, crea una fila por cliente en OportunidadesComerciales (estado "Generada") y responde la lista. El worker completa con: oportunidades (JSON, lista de objetos con idOportunidad, cliente, telefono, mascota) y totalOportunidades (int).</documentation>
+    </serviceTask>
+    <sequenceFlow id="o2" sourceRef="generarOportunidades" targetRef="gwHayClientes"/>
+
+    <exclusiveGateway id="gwHayClientes" name="¿Hay clientes para contactar?" default="oNoHay"/>
+    <sequenceFlow id="oHay" name="Sí" sourceRef="gwHayClientes" targetRef="contactarClientes">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${totalOportunidades > 0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="oNoHay" name="No" sourceRef="gwHayClientes" targetRef="finSinClientes"/>
+    <endEvent id="finSinClientes" name="Campaña sin clientes"/>
+
+    <subProcess id="contactarClientes" name="Contactar a cada cliente">
+      <documentation>Se repite una vez por cada oportunidad generada (multi-instancia secuencial). Variable de cada vuelta: oportunidad.</documentation>
+      <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="${oportunidades}" flowable:elementVariable="oportunidad"/>
+
+      <startEvent id="inicioContacto"/>
+      <sequenceFlow id="c1" sourceRef="inicioContacto" targetRef="contactarCliente"/>
+
+      <userTask id="contactarCliente" name="Contactar cliente">
+        <documentation>La emprendedora contacta al cliente con la oferta de la campaña y registra el resultado. Variables: interesado (boolean, obligatorio), comentarioContacto (opcional).</documentation>
+      </userTask>
+      <sequenceFlow id="c2" sourceRef="contactarCliente" targetRef="registrarResultado"/>
+
+      <serviceTask id="registrarResultado" name="Registrar resultado del contacto" flowable:type="external-worker" flowable:topic="peluditos-resultado-oportunidad-topic">
+        <documentation>Automática. External worker: PUT /api/oportunidades/{oportunidad.idOportunidad}/resultado con interesado y comentarioContacto. Estado: "Ganada" si interesado, "Sin compra" si no.</documentation>
+      </serviceTask>
+      <sequenceFlow id="c3" sourceRef="registrarResultado" targetRef="gwInteresado"/>
+
+      <exclusiveGateway id="gwInteresado" name="¿Interesado?" default="cNo"/>
+      <sequenceFlow id="cSi" name="Sí" sourceRef="gwInteresado" targetRef="gestionarPedidoCampana">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${interesado == true}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="cNo" name="No" sourceRef="gwInteresado" targetRef="finContactoSinCompra"/>
+
+      <userTask id="gestionarPedidoCampana" name="Gestionar pedido de campaña">
+        <documentation>La emprendedora coordina el pedido del cliente interesado. Variable opcional: notaPedido.</documentation>
+      </userTask>
+      <sequenceFlow id="c4" sourceRef="gestionarPedidoCampana" targetRef="finContactoGanado"/>
+
+      <endEvent id="finContactoGanado" name="Venta lograda"/>
+      <endEvent id="finContactoSinCompra" name="Sin compra"/>
+    </subProcess>
+    <sequenceFlow id="o3" sourceRef="contactarClientes" targetRef="finCampana"/>
+    <endEvent id="finCampana" name="Campaña finalizada"/>
+  </process>
+
+  <bpmndi:BPMNDiagram id="diagrama_peluditosOportunidad">
+    <bpmndi:BPMNPlane id="plano_peluditosOportunidad" bpmnElement="peluditosOportunidad">
+      <bpmndi:BPMNShape id="s_inicioCampana" bpmnElement="inicioCampana"><omgdc:Bounds x="40" y="192" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_generarOportunidades" bpmnElement="generarOportunidades"><omgdc:Bounds x="120" y="170" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_gwHayClientes" bpmnElement="gwHayClientes" isMarkerVisible="true"><omgdc:Bounds x="285" y="185" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_finSinClientes" bpmnElement="finSinClientes"><omgdc:Bounds x="292" y="360" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_contactarClientes" bpmnElement="contactarClientes" isExpanded="true"><omgdc:Bounds x="390" y="50" width="700" height="320"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_inicioContacto" bpmnElement="inicioContacto"><omgdc:Bounds x="420" y="192" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_contactarCliente" bpmnElement="contactarCliente"><omgdc:Bounds x="490" y="170" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_registrarResultado" bpmnElement="registrarResultado"><omgdc:Bounds x="650" y="170" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_gwInteresado" bpmnElement="gwInteresado" isMarkerVisible="true"><omgdc:Bounds x="810" y="185" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_gestionarPedidoCampana" bpmnElement="gestionarPedidoCampana"><omgdc:Bounds x="890" y="80" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_finContactoGanado" bpmnElement="finContactoGanado"><omgdc:Bounds x="1040" y="102" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_finContactoSinCompra" bpmnElement="finContactoSinCompra"><omgdc:Bounds x="1040" y="282" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_finCampana" bpmnElement="finCampana"><omgdc:Bounds x="1140" y="192" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="e_o1" bpmnElement="o1"><omgdi:waypoint x="76" y="210"/><omgdi:waypoint x="120" y="210"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_o2" bpmnElement="o2"><omgdi:waypoint x="240" y="210"/><omgdi:waypoint x="285" y="210"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_oHay" bpmnElement="oHay"><omgdi:waypoint x="335" y="210"/><omgdi:waypoint x="390" y="210"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_oNoHay" bpmnElement="oNoHay"><omgdi:waypoint x="310" y="235"/><omgdi:waypoint x="310" y="360"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_c1" bpmnElement="c1"><omgdi:waypoint x="456" y="210"/><omgdi:waypoint x="490" y="210"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_c2" bpmnElement="c2"><omgdi:waypoint x="610" y="210"/><omgdi:waypoint x="650" y="210"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_c3" bpmnElement="c3"><omgdi:waypoint x="770" y="210"/><omgdi:waypoint x="810" y="210"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_cSi" bpmnElement="cSi"><omgdi:waypoint x="835" y="185"/><omgdi:waypoint x="835" y="120"/><omgdi:waypoint x="890" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_cNo" bpmnElement="cNo"><omgdi:waypoint x="835" y="235"/><omgdi:waypoint x="835" y="300"/><omgdi:waypoint x="1040" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_c4" bpmnElement="c4"><omgdi:waypoint x="1010" y="120"/><omgdi:waypoint x="1040" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="e_o3" bpmnElement="o3"><omgdi:waypoint x="1090" y="210"/><omgdi:waypoint x="1140" y="210"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
