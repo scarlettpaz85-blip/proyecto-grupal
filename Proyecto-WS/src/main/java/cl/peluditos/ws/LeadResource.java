@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,47 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 public class LeadResource {
 
-    // Registrar un lead en SQL Server
+    // Determina si el error SQL corresponde a una pérdida de conexión.
+    private boolean esErrorConexion(SQLException e) {
+        SQLException actual = e;
+
+        while (actual != null) {
+            String estadoSQL = actual.getSQLState();
+
+            if (estadoSQL != null && estadoSQL.startsWith("08")) {
+                return true;
+            }
+
+            actual = actual.getNextException();
+        }
+
+        return false;
+    }
+
+    // Genera una respuesta segura para los errores de base de datos.
+    private Response respuestaErrorBD(SQLException e, String operacion) {
+
+        System.err.println("[WS] Error al " + operacion + ": "
+                + e.getMessage());
+
+        if (esErrorConexion(e)) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(Map.of(
+                            "error",
+                            "Servicio de base de datos no disponible. Intente nuevamente más tarde."
+                    ))
+                    .build();
+        }
+
+        return Response.serverError()
+                .entity(Map.of(
+                        "error",
+                        "Ocurrió un error interno al " + operacion
+                ))
+                .build();
+    }
+
+    // Registrar un lead
     @POST
     public Response registrar(Lead lead) {
 
@@ -26,7 +67,7 @@ public class LeadResource {
                 || lead.nombre.isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error",
-                            "El campo 'nombre' es obligatorio"))
+                            "El campo nombre es obligatorio"))
                     .build();
         }
 
@@ -34,16 +75,16 @@ public class LeadResource {
                 || lead.interes == null || lead.interes.isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error",
-                            "Los campos 'canal' e 'interes' son obligatorios"))
+                            "Los campos canal e interes son obligatorios"))
                     .build();
         }
 
         String sql = """
             INSERT INTO dbo.Leads
                 (nombre, telefono, correo, canal,
-                 producto_interes, estado)
+                 producto_interes, estado, process_instance_id)
             OUTPUT INSERTED.id_lead, INSERTED.fecha_registro
-            VALUES (?, ?, ?, ?, ?, 'Nuevo')
+            VALUES (?, ?, ?, ?, ?, 'Nuevo', ?)
             """;
 
         try (Connection connection = Database.getConnection();
@@ -55,60 +96,56 @@ public class LeadResource {
             statement.setString(3, lead.correo);
             statement.setString(4, lead.canal);
             statement.setString(5, lead.interes);
+            statement.setString(6, lead.processInstanceId);
 
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     lead.id = rs.getInt("id_lead");
                     lead.estado = "Nuevo";
                     lead.registrado = true;
-                    lead.fechaRegistro =
-                            rs.getTimestamp("fecha_registro")
-                                    .toLocalDateTime().toString();
+
+                    if (rs.getTimestamp("fecha_registro") != null) {
+                        lead.fechaRegistro =
+                                rs.getTimestamp("fecha_registro")
+                                        .toLocalDateTime().toString();
+                    }
+                } else {
+                    return Response.serverError()
+                            .entity(Map.of("error",
+                                    "No fue posible confirmar el registro del lead"))
+                            .build();
                 }
             }
-
-            System.out.println("[WS] Lead guardado en SQL Server: "
-                    + lead.id);
 
             return Response.status(Response.Status.CREATED)
                     .entity(lead)
                     .build();
 
         } catch (SQLException e) {
-            System.err.println("[WS] Error al registrar lead: "
-                    + e.getMessage());
-
-            return Response.serverError()
-                    .entity(Map.of("error",
-                            "No fue posible registrar el lead"))
-                    .build();
+            return respuestaErrorBD(e, "registrar el lead");
         }
     }
 
-    // Listar los leads desde SQL Server con paginación
+    // Listar leads con paginación
     @GET
     public Response listar(
             @DefaultValue("1") @QueryParam("page") int page,
             @DefaultValue("10") @QueryParam("size") int size) {
 
-        // Diagnóstico temporal de paginación
-        System.out.println("[PAGINACION] page=" + page
-                + ", size=" + size);
-
         if (page < 1 || size < 1 || size > 100) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error",
-                            "La página debe ser mayor a 0 y el tamaño debe estar entre 1 y 100"))
+                            "Página inválida o tamaño fuera del rango permitido"))
                     .build();
         }
 
         List<Lead> leads = new ArrayList<>();
-
         long offset = (long) (page - 1) * size;
 
         String sql = """
             SELECT id_lead, nombre, telefono, correo,
-                   canal, producto_interes, estado, fecha_registro
+                   canal, producto_interes, estado,
+                   fecha_registro, process_instance_id
             FROM dbo.Leads
             ORDER BY id_lead
             OFFSET ? ROWS
@@ -123,7 +160,6 @@ public class LeadResource {
             statement.setInt(2, size);
 
             try (ResultSet rs = statement.executeQuery()) {
-
                 while (rs.next()) {
                     Lead lead = new Lead();
 
@@ -134,9 +170,15 @@ public class LeadResource {
                     lead.canal = rs.getString("canal");
                     lead.interes = rs.getString("producto_interes");
                     lead.estado = rs.getString("estado");
-                    lead.fechaRegistro =
-                            rs.getTimestamp("fecha_registro")
-                                    .toLocalDateTime().toString();
+
+                    if (rs.getTimestamp("fecha_registro") != null) {
+                        lead.fechaRegistro =
+                                rs.getTimestamp("fecha_registro")
+                                        .toLocalDateTime().toString();
+                    }
+
+                    lead.processInstanceId =
+                            rs.getString("process_instance_id");
                     lead.registrado = true;
 
                     leads.add(lead);
@@ -146,24 +188,26 @@ public class LeadResource {
             return Response.ok(leads).build();
 
         } catch (SQLException e) {
-            System.err.println("[WS] Error al listar leads: "
-                    + e.getMessage());
-
-            return Response.serverError()
-                    .entity(Map.of("error",
-                            "No fue posible listar los leads"))
-                    .build();
+            return respuestaErrorBD(e, "listar los leads");
         }
     }
 
-    // Buscar un lead por su ID
+    // Buscar lead por ID
     @GET
     @Path("{id}")
     public Response obtener(@PathParam("id") int id) {
 
+        if (id < 1) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error",
+                            "El ID del lead debe ser mayor que cero"))
+                    .build();
+        }
+
         String sql = """
             SELECT id_lead, nombre, telefono, correo,
-                   canal, producto_interes, estado, fecha_registro
+                   canal, producto_interes, estado,
+                   fecha_registro, process_instance_id
             FROM dbo.Leads
             WHERE id_lead = ?
             """;
@@ -175,7 +219,6 @@ public class LeadResource {
             statement.setInt(1, id);
 
             try (ResultSet rs = statement.executeQuery()) {
-
                 if (!rs.next()) {
                     return Response.status(Response.Status.NOT_FOUND)
                             .entity(Map.of("error",
@@ -192,22 +235,22 @@ public class LeadResource {
                 lead.canal = rs.getString("canal");
                 lead.interes = rs.getString("producto_interes");
                 lead.estado = rs.getString("estado");
-                lead.fechaRegistro =
-                        rs.getTimestamp("fecha_registro")
-                                .toLocalDateTime().toString();
+
+                if (rs.getTimestamp("fecha_registro") != null) {
+                    lead.fechaRegistro =
+                            rs.getTimestamp("fecha_registro")
+                                    .toLocalDateTime().toString();
+                }
+
+                lead.processInstanceId =
+                        rs.getString("process_instance_id");
                 lead.registrado = true;
 
                 return Response.ok(lead).build();
             }
 
         } catch (SQLException e) {
-            System.err.println("[WS] Error al buscar lead: "
-                    + e.getMessage());
-
-            return Response.serverError()
-                    .entity(Map.of("error",
-                            "No fue posible buscar el lead"))
-                    .build();
+            return respuestaErrorBD(e, "buscar el lead");
         }
     }
 
@@ -215,14 +258,22 @@ public class LeadResource {
     public static class CierreLead {
         public Boolean compro;
         public String motivoNoCompra;
+        public String comentarioNoCompra;
     }
 
-    // Cerrar un lead según el resultado de la venta
+    // Cerrar lead y crear cliente si hubo compra
     @PUT
     @Path("{id}/cierre")
     public Response cerrarLead(
             @PathParam("id") int id,
             CierreLead cierre) {
+
+        if (id < 1) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error",
+                            "El ID del lead debe ser mayor que cero"))
+                    .build();
+        }
 
         if (cierre == null || cierre.compro == null) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -240,59 +291,179 @@ public class LeadResource {
                     .build();
         }
 
-        String sql = """
+        String motivoCompleto = null;
+
+        if (!cierre.compro) {
+            motivoCompleto = cierre.motivoNoCompra.trim();
+
+            if (cierre.comentarioNoCompra != null &&
+                    !cierre.comentarioNoCompra.isBlank()) {
+                motivoCompleto += " - Comentario: "
+                        + cierre.comentarioNoCompra.trim();
+            }
+
+            if (motivoCompleto.length() > 255) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Map.of("error",
+                                "El motivo y comentario no pueden superar 255 caracteres"))
+                        .build();
+            }
+        }
+
+        String actualizarLead = """
             UPDATE dbo.Leads
-            SET estado = CASE
-                    WHEN ? = 1 THEN 'Convertido'
-                    ELSE 'No convertido'
-                END,
-                motivo_no_compra = CASE
-                    WHEN ? = 1 THEN NULL
-                    ELSE ?
-                END
+            SET estado = ?,
+                motivo_no_compra = ?
             OUTPUT INSERTED.id_lead,
+                   INSERTED.nombre,
+                   INSERTED.telefono,
+                   INSERTED.correo,
                    INSERTED.estado,
                    INSERTED.motivo_no_compra
             WHERE id_lead = ?
             """;
 
-        try (Connection connection = Database.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        String buscarCliente = """
+            SELECT id_cliente
+            FROM dbo.Clientes WITH (UPDLOCK, HOLDLOCK)
+            WHERE lead_origen_id = ?
+            """;
 
-            statement.setBoolean(1, cierre.compro);
-            statement.setBoolean(2, cierre.compro);
-            statement.setString(3, cierre.motivoNoCompra);
-            statement.setInt(4, id);
+        String insertarCliente = """
+            INSERT INTO dbo.Clientes
+                (nombre, telefono, correo, acepta_comunicaciones,
+                 lead_origen_id)
+            OUTPUT INSERTED.id_cliente
+            VALUES (?, ?, ?, 0, ?)
+            """;
 
-            try (ResultSet rs = statement.executeQuery()) {
+        try (Connection connection = Database.getConnection()) {
 
-                if (!rs.next()) {
-                    return Response.status(Response.Status.NOT_FOUND)
-                            .entity(Map.of("error",
-                                    "Lead no encontrado"))
-                            .build();
+            connection.setAutoCommit(false);
+
+            try {
+                int idCliente = 0;
+
+                String estado = cierre.compro
+                        ? "Convertido" : "No convertido";
+
+                String nombre;
+                String telefono;
+                String correo;
+                String motivo;
+
+                // Actualizar lead
+                try (PreparedStatement statement =
+                             connection.prepareStatement(actualizarLead)) {
+
+                    statement.setString(1, estado);
+                    statement.setString(2, motivoCompleto);
+                    statement.setInt(3, id);
+
+                    try (ResultSet rs = statement.executeQuery()) {
+                        if (!rs.next()) {
+                            connection.rollback();
+
+                            return Response.status(
+                                    Response.Status.NOT_FOUND)
+                                    .entity(Map.of("error",
+                                            "Lead no encontrado"))
+                                    .build();
+                        }
+
+                        nombre = rs.getString("nombre");
+                        telefono = rs.getString("telefono");
+                        correo = rs.getString("correo");
+                        estado = rs.getString("estado");
+                        motivo = rs.getString("motivo_no_compra");
+                    }
                 }
 
-                String estado = rs.getString("estado");
-                String motivo = rs.getString("motivo_no_compra");
+                // Si compró, crear o recuperar el cliente
+                if (cierre.compro) {
 
-                return Response.ok(Map.of(
-                        "id", rs.getInt("id_lead"),
-                        "estado", estado,
-                        "motivoNoCompra",
-                        motivo == null ? "" : motivo
-                )).build();
+                    try (PreparedStatement statement =
+                                 connection.prepareStatement(buscarCliente)) {
+
+                        statement.setInt(1, id);
+
+                        try (ResultSet rs = statement.executeQuery()) {
+                            if (rs.next()) {
+                                idCliente = rs.getInt("id_cliente");
+                            }
+                        }
+                    }
+
+                    // Evitar duplicar clientes del mismo lead
+                    if (idCliente == 0) {
+                        try (PreparedStatement statement =
+                                     connection.prepareStatement(insertarCliente)) {
+
+                            statement.setString(1, nombre);
+                            statement.setString(2, telefono);
+                            statement.setString(3, correo);
+                            statement.setInt(4, id);
+
+                            try (ResultSet rs = statement.executeQuery()) {
+                                if (rs.next()) {
+                                    idCliente = rs.getInt("id_cliente");
+                                } else {
+                                    throw new SQLException(
+                                            "No se pudo crear el cliente");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                connection.commit();
+
+                Map<String, Object> respuesta =
+                        new LinkedHashMap<>();
+
+                respuesta.put("idLead", id);
+                respuesta.put("estado", estado);
+                respuesta.put("motivoNoCompra",
+                        motivo == null ? "" : motivo);
+
+                if (cierre.compro) {
+                    respuesta.put("idCliente", idCliente);
+                    respuesta.put("aceptaComunicaciones", false);
+                    respuesta.put("mensaje",
+                            "Lead convertido y cliente registrado correctamente");
+                } else {
+                    respuesta.put("mensaje",
+                            "Lead cerrado sin compra");
+                }
+
+                return Response.ok(respuesta).build();
+
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackError) {
+                    System.err.println(
+                            "[WS] Error al realizar rollback: "
+                            + rollbackError.getMessage());
+                    e.addSuppressed(rollbackError);
+                }
+
+                throw e;
+
+            } finally {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException e) {
+                    System.err.println(
+                            "[WS] Error al restaurar autoCommit: "
+                            + e.getMessage());
+                }
             }
 
         } catch (SQLException e) {
-            System.err.println("[WS] Error al cerrar lead: "
-                    + e.getMessage());
-
-            return Response.serverError()
-                    .entity(Map.of("error",
-                            "No fue posible cerrar el lead"))
-                    .build();
+            return respuestaErrorBD(e,
+                    "cerrar el lead y registrar el resultado");
         }
     }
 }
+

@@ -11,10 +11,11 @@ Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle,
 - Gradle.
 - Jakarta REST (Jersey 3).
 - Servidor Grizzly.
-- Microsoft SQL Server 20.1.
+- Microsoft SQL Server 2017.
+- SQL Server Management Studio 20.1 (SSMS).
 - JDBC para conexión y persistencia de datos.
-- Git y GitHub para control de versiones.
 - Microsoft JDBC Driver for SQL Server 13.2.1.jre11.
+- Git y GitHub para control de versiones.
 
 ## 2. Estructura del componente
 
@@ -24,20 +25,20 @@ Proyecto-WS/
 │   ├── Evidencias-base-de-datos/
 │   ├── Evidencias-Java/
 │   ├── Scripts/
-│   │   ├── 01_Creacion_DB_PeluditosPetChile.sql
-│   │   ├── 02_Inserciones_Prueba.sql
-│   │   └── 03_Consultas_Verificacion.sql
 │   └── README.md
+├── Evidencias-EV-3/
 ├── src/
 │   └── main/
 │       └── java/cl/peluditos/ws/
 │           ├── ClienteResource.java
 │           ├── CorsFilter.java
 │           ├── Database.java
+│           ├── FechaRelevanteResource.java
 │           ├── HealthResource.java
 │           ├── Lead.java
 │           ├── LeadResource.java
 │           ├── Main.java
+│           ├── OportunidadResource.java
 │           └── SeguimientoResource.java
 ├── build.gradle.kts
 ├── gradlew
@@ -66,40 +67,75 @@ Los scripts de creación, pruebas y consultas se encuentran en `BaseDatos-Java/S
 
 La conexión JDBC se implementa en `Database.java`.
 
-La configuración utiliza una variable de entorno para proteger la contraseña:
+El proyecto utiliza variables de entorno para configurar la conexión y proteger las credenciales:
 
-`PELUDITOS_DB_PASSWORD`
-
-Antes de ejecutar el servicio, se debe configurar esa variable en el sistema operativo con la contraseña del usuario de SQL Server utilizado por el proyecto.
+- `PELUDITOS_DB_HOST`: servidor de SQL Server.
+- `PELUDITOS_DB_PORT`: puerto de SQL Server.
+- `PELUDITOS_DB_NAME`: nombre de la base de datos.
+- `PELUDITOS_DB_USER`: usuario de SQL Server.
+- `PELUDITOS_DB_PASSWORD`: contraseña del usuario de SQL Server.
+- `PELUDITOS_WS_PORT`: puerto de ejecución del servicio REST.
 
 No se deben guardar contraseñas ni credenciales personales dentro del repositorio.
 
-La conexión utiliza SQL Server mediante JDBC y permite que los servicios REST consulten y registren información en la base de datos.
-
 ## 5. Cómo ejecutar el servicio
 
-**Requisitos:**
+### Requisitos
 
 - JDK 21 instalado.
 - SQL Server iniciado.
 - Base de datos `DB_PeluditosPetChile` creada.
-- Variable de entorno `PELUDITOS_DB_PASSWORD` configurada.
+- Variables de entorno de conexión configuradas.
+- Gradle Wrapper incluido en el proyecto.
 
-Desde una terminal de Windows:
+### Configuración en PowerShell
+
+Ejemplo de configuración:
 
 ```powershell
-cd Proyecto-WS
+$env:PELUDITOS_DB_HOST="localhost"
+$env:PELUDITOS_DB_PORT="1433"
+$env:PELUDITOS_DB_NAME="DB_PeluditosPetChile"
+$env:PELUDITOS_DB_USER="USUARIO_SQL"
+$env:PELUDITOS_DB_PASSWORD="CONTRASEÑA_SQL"
+$env:PELUDITOS_WS_PORT="8081"
+```
+
+Los valores de usuario y contraseña deben corresponder a las credenciales configuradas en SQL Server.
+
+### Compilar el proyecto
+
+Desde la carpeta `Proyecto-WS`:
+
+```powershell
 .\gradlew.bat build
+```
+
+### Ejecutar el servicio
+
+```powershell
 .\gradlew.bat run
 ```
 
-El servicio queda disponible en:
+Si no se configura `PELUDITOS_WS_PORT`, el servicio utiliza el puerto predeterminado `8081`.
+
+La dirección base del servicio es:
 
 `http://localhost:8081/api`
 
-Para comprobar que está funcionando, abrir:
+Si se configura el puerto `8082`, la dirección base será:
+
+`http://localhost:8082/api`
+
+### Comprobar el funcionamiento
+
+Abrir en el navegador:
 
 `http://localhost:8081/api/health`
+
+La respuesta esperada es:
+
+`Servicio Peluditos - Estado: OK`
 
 ## 6. Servicios REST implementados
 
@@ -112,22 +148,29 @@ Para comprobar que está funcionando, abrir:
 | Registrar seguimiento | POST `/api/leads/{id}/seguimientos` | Registra un seguimiento asociado a un lead. |
 | Cerrar lead | PUT `/api/leads/{id}/cierre` | Actualiza el estado comercial del lead. |
 | Registrar cliente | POST `/api/clientes` | Registra un cliente en SQL Server. |
+| Consultar fechas relevantes | GET `/api/fechas-relevantes` | Consulta las fechas relevantes activas. |
+| Generar oportunidades | POST `/api/oportunidades/generar` | Genera oportunidades para clientes que aceptaron comunicaciones. |
+| Consultar oportunidades | GET `/api/oportunidades?idFechaRelevante={id}` | Consulta oportunidades comerciales. |
+| Registrar resultado | PUT `/api/oportunidades/{id}/resultado` | Registra el resultado del contacto comercial. |
 
-### 6.1 Registro de leads
+## 7. Registro y gestión de leads
+
+### 7.1 Registro de leads
 
 Ruta: `POST /api/leads`
 
-Datos principales:
+Recibe los siguientes datos:
 
-- nombre
-- telefono
-- correo
-- canal
-- interes
+- `nombre`
+- `telefono`
+- `correo`
+- `canal`
+- `interes`
+- `processInstanceId`
 
 El servicio valida los campos obligatorios, registra la información en SQL Server y devuelve el identificador del lead creado.
 
-### 6.2 Consulta de leads
+### 7.2 Consulta de leads
 
 Ruta: `GET /api/leads?page=1&size=10`
 
@@ -137,25 +180,19 @@ Permite consultar los leads mediante paginación.
 - `size`: cantidad de registros por página.
 - Valores predeterminados: página 1 y tamaño 10.
 
-### 6.3 Consulta por identificador
+### 7.3 Consulta por identificador
 
 Ruta: `GET /api/leads/{id}`
 
 Permite obtener los datos de un lead específico. Si no existe, devuelve un error 404.
 
-### 6.4 Registro de seguimientos
+### 7.4 Registro de seguimientos
 
 Ruta: `POST /api/leads/{id}/seguimientos`
 
-Recibe información del seguimiento:
+Permite registrar información de seguimiento asociada al lead, como medio de contacto, comentario y resultado.
 
-- medio
-- comentario
-- resultado
-
-El seguimiento queda asociado al lead correspondiente.
-
-### 6.5 Cierre de leads
+### 7.5 Cierre de leads
 
 Ruta: `PUT /api/leads/{id}/cierre`
 
@@ -165,37 +202,87 @@ Datos recibidos:
 
 - `compro`: valor booleano.
 - `motivoNoCompra`: motivo cuando no se concreta la compra.
+- `comentarioNoCompra`: comentario adicional opcional.
 
 Los estados utilizados son `Convertido` y `No convertido`.
 
-### 6.6 Registro de clientes
+Cuando se registra una compra, el servicio crea el cliente asociado al lead, evitando duplicar clientes del mismo origen.
 
-Ruta: `POST /api/clientes`
+El campo `acepta_comunicaciones` se mantiene en falso cuando no existe consentimiento explícito.
 
-Permite registrar clientes con información como:
+## 8. Gestión de fechas relevantes y oportunidades
 
-- nombre
-- telefono
-- correo
-- comuna
-- aceptaComunicaciones
-- leadOrigenId
+### 8.1 Consultar fechas relevantes
 
-## 7. CORS
+Ruta: `GET /api/fechas-relevantes`
+
+Permite consultar las fechas relevantes activas registradas en SQL Server.
+
+### 8.2 Generar oportunidades comerciales
+
+Ruta: `POST /api/oportunidades/generar`
+
+Recibe:
+
+- `idFechaRelevante`
+- `processInstanceId`
+
+El servicio genera oportunidades para los clientes que tienen habilitada la aceptación de comunicaciones.
+
+Además, verifica que no existan oportunidades duplicadas para el mismo cliente y fecha relevante.
+
+### 8.3 Consultar oportunidades
+
+Ruta: `GET /api/oportunidades?idFechaRelevante={id}`
+
+Permite consultar las oportunidades comerciales y sus datos asociados.
+
+### 8.4 Registrar resultado de una oportunidad
+
+Ruta: `PUT /api/oportunidades/{id}/resultado`
+
+Recibe:
+
+- `interesado`: valor booleano.
+- `comentarioContacto`: comentario del contacto.
+
+Los estados resultantes son:
+
+- `Ganada`.
+- `Sin compra`.
+
+## 9. Manejo de errores y validaciones
+
+Los recursos REST incorporan validaciones de datos obligatorios e identificadores.
+
+Se contemplan respuestas HTTP para diferentes situaciones:
+
+| Código HTTP | Descripción |
+|---|---|
+| 201 | Registro creado correctamente. |
+| 200 | Consulta o actualización exitosa. |
+| 400 | Solicitud con datos inválidos. |
+| 404 | Recurso no encontrado. |
+| 500 | Error interno del servidor o base de datos. |
+| 503 | Servicio de base de datos no disponible, cuando se identifica un error de conexión. |
+
+Los mensajes de respuesta no exponen contraseñas ni información interna de conexión.
+
+## 10. CORS
 
 Se incorpora `CorsFilter.java` para gestionar las solicitudes de origen cruzado (CORS) y permitir la comunicación entre la interfaz web y el servicio REST según la configuración del proyecto.
 
-## 8. Integración con Flowable y External Worker
+## 11. Integración con Flowable y External Worker
 
-El Web Service Java dispone de operaciones REST para integrarse con el proceso de negocio gestionado mediante Flowable OSS y un External Worker.
+El Web Service Java dispone de operaciones REST para integrarse con el proceso de negocio gestionado mediante Flowable OSS y External Workers.
 
-### 8.1 Comunicación entre componentes
+### 11.1 Comunicación entre componentes
 
-Para permitir la comunicación entre los computadores de los integrantes, se utilizó Tailscale, una red privada que facilita el acceso al Web Service Java.
+Para permitir la comunicación entre los computadores de los integrantes se contempla el uso de Tailscale, una red privada que facilita el acceso al Web Service Java.
 
-Se verificó que el equipo remoto podía consultar el endpoint `GET /api/health` y obtener una respuesta correcta.
+La dirección `localhost` corresponde al equipo donde se ejecuta el servicio. Para acceder desde otro computador se debe utilizar una dirección de red accesible para ambos integrantes.
 
-### 8.2 Registro y cierre de leads
+### 11.2 Registro y cierre de leads
 
 El proceso de integración contempla:
 
@@ -206,24 +293,30 @@ El proceso de integración contempla:
 5. El Worker utiliza `PUT /api/leads/{id}/cierre` para actualizar el resultado comercial.
 6. SQL Server conserva el estado del lead como `Convertido` o `No convertido`.
 
-### 8.3 Resultados observados
+### 11.3 Campañas y oportunidades
 
-Durante las pruebas realizadas con el equipo se verificó la comunicación remota con el Web Service Java y se observaron registros de prueba en SQL Server.
+El proceso contempla:
 
-También se comprobaron registros con los estados comerciales `Convertido` y `No convertido`, incluyendo motivos de no compra.
+1. Consultar las fechas relevantes activas.
+2. Seleccionar la fecha de campaña.
+3. Generar oportunidades comerciales.
+4. Consultar las oportunidades generadas.
+5. Registrar el resultado del contacto comercial.
+6. Actualizar el estado de la oportunidad.
 
-Estas verificaciones respaldan el funcionamiento de la persistencia y actualización de los datos. Las evidencias de la ejecución completa del proceso se gestionan por separado en las pruebas de punta a punta del equipo.
+La integración completa de estos procesos debe validarse conjuntamente con Flowable y los External Workers.
 
-## 9. Pruebas y evidencias
+## 12. Pruebas y evidencias
 
 Las evidencias del componente se encuentran en:
 
 - `BaseDatos-Java/Evidencias-base-de-datos/`
 - `BaseDatos-Java/Evidencias-Java/`
+- `Evidencias-EV-3/`
 
 Incluyen capturas de creación de tablas, conexión con SQL Server, compilación, ejecución del servicio, operaciones REST y verificaciones de persistencia.
 
-Durante las pruebas se verificaron las siguientes operaciones:
+Durante las pruebas se verificaron:
 
 - Conexión JDBC con SQL Server.
 - Compilación del proyecto mediante Gradle.
@@ -232,26 +325,33 @@ Durante las pruebas se verificaron las siguientes operaciones:
 - Registro de leads mediante `POST /api/leads`.
 - Consulta de leads mediante `GET /api/leads`.
 - Consulta individual de leads mediante `GET /api/leads/{id}`.
-- Registro de seguimientos.
-- Actualización de estados comerciales mediante `PUT /api/leads/{id}/cierre`.
-- Verificación de los estados `Convertido` y `No convertido` directamente en SQL Server.
+- Cierre de leads con compra y sin compra.
+- Creación automática de clientes.
+- Generación y consulta de oportunidades.
+- Registro de resultados `Ganada` y `Sin compra`.
+- Validación de datos obligatorios.
+- Prueba de disponibilidad del servicio web.
+- Prueba de conexión con SQL Server detenido y recuperación posterior.
+- Configuración y comprobación del puerto configurable.
 
-Los scripts de consultas de verificación permiten revisar los registros almacenados en la base de datos.
+Las consultas de verificación permiten revisar los registros almacenados directamente en SQL Server.
 
-## 10. Estado del componente
+## 13. Estado del componente
 
 El componente cuenta con:
 
 - Conexión JDBC con SQL Server.
-- Persistencia de leads.
+- Persistencia y consulta de leads.
 - Consulta de leads con paginación.
-- Consulta individual de leads.
 - Registro de seguimientos.
 - Cierre de leads.
-- Registro de clientes.
+- Creación automática de clientes.
+- Consulta de fechas relevantes.
+- Generación y consulta de oportunidades comerciales.
+- Registro de resultados comerciales.
 - Configuración CORS.
+- Puerto configurable mediante `PELUDITOS_WS_PORT`.
+- Validaciones y manejo de errores.
 - Evidencias de compilación, ejecución y pruebas de persistencia.
-- Comunicación remota comprobada entre el Web Service Java y el equipo de Scarlett mediante Tailscale.
-- Verificación en SQL Server de registros con estados `Convertido` y `No convertido`.
 
-La validación completa del recorrido de punta a punta, incluyendo la interfaz, Flowable, External Worker y gestión de pedidos, corresponde a las pruebas de integración del equipo.
+La validación completa del recorrido de punta a punta, incluyendo la interfaz, Flowable, External Workers y gestión de pedidos, corresponde a las pruebas de integración del equipo.
