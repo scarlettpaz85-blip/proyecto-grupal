@@ -68,8 +68,8 @@ public class PeluditosApp {
     private static void procesarLead(String jobId, String job) throws Exception {
         try {
             String nombre = requiredVar(job, "nombre");
-            String telefono = var(job, "");
-            String correo = var(job, "");
+            String telefono = var(job, "", "telefono");
+            String correo = var(job, "", "correo");
             String canal = var(job, "no informado", "canal");
             String interes = var(job, "no informado", "interes");
             String processInstanceId = first(job, "\"processInstanceId\"\\s*:\\s*\"([^\"]+)\"");
