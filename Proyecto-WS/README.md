@@ -16,6 +16,7 @@ Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle,
 - JDBC para conexión y persistencia de datos.
 - Microsoft JDBC Driver for SQL Server 13.2.1.jre11.
 - Git y GitHub para control de versiones.
+- Tailscale para la comunicación privada entre los equipos del grupo.
 
 ## 2. Estructura del componente
 
@@ -27,6 +28,8 @@ Proyecto-WS/
 │   ├── Scripts/
 │   └── README.md
 ├── Evidencias-EV-3/
+├── Evidencias/
+│   └── Punta_a_Punta/
 ├── src/
 │   └── main/
 │       └── java/cl/peluditos/ws/
@@ -278,9 +281,13 @@ El Web Service Java dispone de operaciones REST para integrarse con el proceso d
 
 ### 11.1 Comunicación entre componentes
 
-Para permitir la comunicación entre los computadores de los integrantes se contempla el uso de Tailscale, una red privada que facilita el acceso al Web Service Java.
+Para permitir la comunicación entre los computadores de los integrantes se utiliza Tailscale, una red privada que facilita el acceso al Web Service Java.
 
 La dirección `localhost` corresponde al equipo donde se ejecuta el servicio. Para acceder desde otro computador se debe utilizar una dirección de red accesible para ambos integrantes.
+
+El servicio se ejecuta escuchando en las interfaces de red para permitir las conexiones autorizadas desde el equipo del otro integrante.
+
+La dirección base configurada para el Worker debe apuntar al equipo donde se ejecuta el Web Service Java, utilizando la conexión privada de Tailscale.
 
 ### 11.2 Registro y cierre de leads
 
@@ -293,6 +300,13 @@ El proceso de integración contempla:
 5. El Worker utiliza `PUT /api/leads/{id}/cierre` para actualizar el resultado comercial.
 6. SQL Server conserva el estado del lead como `Convertido` o `No convertido`.
 
+Durante las pruebas de integración se verificaron registros de leads iniciados desde Flowable y su persistencia en SQL Server.
+
+También se probaron los resultados de cierre:
+
+- Lead convertido: se registró el estado `Convertido` y se creó el cliente asociado.
+- Lead no convertido: se registró el estado `No convertido` y el motivo correspondiente.
+
 ### 11.3 Campañas y oportunidades
 
 El proceso contempla:
@@ -304,7 +318,32 @@ El proceso contempla:
 5. Registrar el resultado del contacto comercial.
 6. Actualizar el estado de la oportunidad.
 
-La integración completa de estos procesos debe validarse conjuntamente con Flowable y los External Workers.
+Durante la integración con Flowable se realizaron pruebas de generación y registro de resultados de oportunidades comerciales para la campaña de Navidad.
+
+Se verificó que:
+
+- La generación de oportunidades consideró clientes con aceptación de comunicaciones habilitada.
+- Las oportunidades generadas quedaron almacenadas en SQL Server.
+- Los External Workers de Flowable ejecutaron las operaciones de registro de resultados.
+- Se registró una oportunidad con estado `Ganada`.
+- Se registró otra oportunidad con estado `Sin compra`.
+- Los resultados se comprobaron mediante consultas directas en SQL Server.
+
+### 11.4 Verificación de integración entre Flowable y SQL Server
+
+Como parte de las pruebas conjuntas del equipo se realizaron las siguientes verificaciones:
+
+- Comunicación remota entre los equipos mediante Tailscale.
+- Acceso de Scarlet al endpoint de salud del Web Service Java.
+- Configuración de la dirección del Web Service en el Worker mediante `WS_URL`.
+- Registro de leads desde el flujo de Flowable.
+- Persistencia de los leads en SQL Server.
+- Cierre de leads con y sin compra.
+- Generación de oportunidades para la campaña de Navidad.
+- Ejecución de Workers para registrar resultados de oportunidades.
+- Comprobación de los estados comerciales directamente en SQL Server.
+
+Estas pruebas permitieron comprobar la comunicación entre Flowable, los External Workers, el Web Service Java y la base de datos.
 
 ## 12. Pruebas y evidencias
 
@@ -313,8 +352,9 @@ Las evidencias del componente se encuentran en:
 - `BaseDatos-Java/Evidencias-base-de-datos/`
 - `BaseDatos-Java/Evidencias-Java/`
 - `Evidencias-EV-3/`
+- `Evidencias/Punta_a_Punta/`
 
-Incluyen capturas de creación de tablas, conexión con SQL Server, compilación, ejecución del servicio, operaciones REST y verificaciones de persistencia.
+Incluyen capturas de creación de tablas, conexión con SQL Server, compilación, ejecución del servicio, operaciones REST, integración con Flowable y verificaciones de persistencia.
 
 Durante las pruebas se verificaron:
 
@@ -333,6 +373,28 @@ Durante las pruebas se verificaron:
 - Prueba de disponibilidad del servicio web.
 - Prueba de conexión con SQL Server detenido y recuperación posterior.
 - Configuración y comprobación del puerto configurable.
+- Comunicación remota mediante Tailscale.
+- Registro de leads desde Flowable mediante External Workers.
+- Ejecución de Workers para registrar resultados de oportunidades.
+- Verificación de los resultados de integración directamente en SQL Server.
+
+### 12.1 Evidencias de integración
+
+Entre las pruebas de integración realizadas se encuentran:
+
+**Registro y cierre de leads**
+
+- Registro de un lead desde Flowable y comprobación de su persistencia en SQL Server.
+- Cierre de un lead como `Convertido`, con creación del cliente asociado.
+- Cierre de un lead como `No convertido`, con almacenamiento del motivo de no compra.
+
+**Campaña de Navidad**
+
+- Generación de oportunidades comerciales asociadas a la fecha relevante de Navidad.
+- Consulta de oportunidades generadas.
+- Ejecución de Worker con resultado de interés positivo, registrando el estado `Ganada`.
+- Ejecución de Worker con resultado de interés negativo, registrando el estado `Sin compra`.
+- Verificación de los resultados almacenados en SQL Server.
 
 Las consultas de verificación permiten revisar los registros almacenados directamente en SQL Server.
 
@@ -353,5 +415,10 @@ El componente cuenta con:
 - Puerto configurable mediante `PELUDITOS_WS_PORT`.
 - Validaciones y manejo de errores.
 - Evidencias de compilación, ejecución y pruebas de persistencia.
+- Pruebas de comunicación remota mediante Tailscale.
+- Pruebas de integración con Flowable y External Workers para el registro y cierre de leads.
+- Pruebas de generación de oportunidades y registro de sus resultados desde Workers.
 
-La validación completa del recorrido de punta a punta, incluyendo la interfaz, Flowable, External Workers y gestión de pedidos, corresponde a las pruebas de integración del equipo.
+Las pruebas realizadas permitieron validar la comunicación entre los componentes Java, SQL Server y Flowable para los escenarios documentados.
+
+La validación global de todos los recorridos de punta a punta del proyecto, incluyendo la interfaz, los procesos completos y la gestión de pedidos, corresponde a las pruebas generales de integración del equipo.
