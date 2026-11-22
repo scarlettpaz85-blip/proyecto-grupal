@@ -44,9 +44,9 @@ Realizadas por Jennifer Igor España con PowerShell (`Invoke-RestMethod`) y veri
 | E3 | SQL Server apagado | El WS no se cae y responde un error controlado | `{"error":"No fue posible registrar el lead"}` | [28](../../Proyecto-WS/Evidencias-EV-3/28_Error_Conexion_SQL_Server_Apagado.png) | ✅ |
 | E4 | SQL Server vuelve a encenderse | El WS se recupera sin reiniciarse | Conexión exitosa después de reactivar SQL Server | [29](../../Proyecto-WS/Evidencias-EV-3/29_Verificacion_Recuperacion_SQL_Server_Conexion_Exitosa.png) | ✅ |
 | E5 | WS apagado mientras el worker procesa un trabajo | El worker informa el fallo a Flowable (`/fail`) y el trabajo se reintenta al volver el WS |El worker recibe el trabajo, intenta registrar el lead y muestra un error. Se observan nuevos intentos del mismo trabajo.  |[30](../../Proyecto-WS/Evidencias/Punta_a_Punta/30.png) [31](../../Proyecto-WS/Evidencias/Punta_a_Punta/31.png) | ✅ |
-| E6 | Datos incompletos en el formulario de la interfaz | La interfaz no deja enviar y muestra qué falta | – | – | ⏳ |
-| E7 | Flowable apagado | La interfaz muestra un mensaje entendible en lugar de quedarse en blanco | – | – | ⏳ |
-| E8 | Campaña de una fecha sin clientes | El proceso 2 termina en "Campaña sin clientes" | – | – | ⏳ |
+| E6 | Datos incompletos en el formulario de la interfaz | La interfaz no deja enviar y muestra qué falta |   El formulario impide el envío y muestra el mensaje "Completa este campo"| [32](../../Proyecto-WS/Evidencias/Punta_a_Punta/32.png) | ✅ |
+| E7 | Flowable apagado | La interfaz muestra un mensaje entendible en lugar de quedarse en blanco | La interfaz muestra "Flowable 500: Internal Server Error".  |[33](../../Proyecto-WS/Evidencias/Punta_a_Punta/33.png) | ✅ |
+| E8 | Campaña de una fecha sin clientes | El proceso 2 termina en "Campaña sin clientes" |El worker procesa la campaña correctamente y genera 0 oportunidades. | [34](../../Proyecto-WS/Evidencias/Punta_a_Punta/34.png) | ✅ |
 
 ## 4. Recorridos de punta a punta (desde la interfaz)
 
