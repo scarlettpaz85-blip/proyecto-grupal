@@ -57,7 +57,7 @@ Se ejecutan con todos los componentes encendidos: interfaz → Flowable OSS → 
 | R1 | Proceso 1 – El cliente no compra | Registrar lead → seguimiento "No" → **Registrar motivo de no compra** | Lead "No convertido" con motivo y comentario en SQL Server; el proceso termina |[3.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/3.jpeg) · [4.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/4.jpeg) ·– | ✅ |
 | R2 | Proceso 1 – El cliente compra | Registrar lead → seguimiento "Sí" → Gestionar pedido | Lead "Convertido" y **cliente creado**; el proceso termina | [1.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/1.jpeg) · [2.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/2.jpeg) · [5.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/5.jpeg)  · [6.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/6.jpeg)|✅ |
 | R3 | Proceso 2 – Campaña | Iniciar campaña "Navidad" → aparece "Contactar cliente" por cada cliente | Oportunidades "Generada" en SQL Server, con `process_instance_id` | · [9.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/9.jpeg) – | ⏳ |
-| R4 | Proceso 2 – Cliente interesado | Contactar cliente → "Interesado" → Gestionar pedido de campaña | Oportunidad "Ganada" | – | ⏳ |
+| R4 | Proceso 2 – Cliente interesado | Contactar cliente → "Interesado" → Gestionar pedido de campaña | Oportunidad "Ganada" | [8.jpeg](../../Proyecto-WS/Evidencias/Punta_a_Punta/8.jpeg)– | ⏳ |
 | R5 | Proceso 2 – Cliente no interesado | Contactar cliente → "No interesado" + comentario | Oportunidad "Sin compra" con comentario | – | ⏳ |
 | R6 | Unión de los procesos | El cliente creado en R2 aparece en una campaña nueva | El lead convertido recibe una oportunidad | – | ⏳ |
 
