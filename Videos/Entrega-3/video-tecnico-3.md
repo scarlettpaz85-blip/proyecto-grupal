@@ -6,11 +6,11 @@
 
 ## Participación individual (cada integrante explica su trabajo)
 
-| Minuto | Integrante | Tema / componente |
+| Minuto | Integrante | Tema / componente | link video |
 |---|---|---|
 | 00:00 | | Introducción y arquitectura |
 | | | BPMN y despliegue en Flowable |
-| | | Servicios web / External Worker |
+|05:37 |Scarlett Paz| Servicios web / External Worker | [Ver video en Google Drive](https://drive.google.com/file/d/1JbSq5wR5Cr_SdPDM4vlqITZiv870Y1xq/view?usp=sharing)|
 | | | UI y demo end-to-end |
 
 ## Puntos a mostrar
