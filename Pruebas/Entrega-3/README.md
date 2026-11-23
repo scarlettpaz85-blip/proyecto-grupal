@@ -65,5 +65,5 @@ Las capturas de esta sección se guardarán en esta carpeta con el formato `R1-0
 
 ## 5. Observaciones
 
-- Las pruebas de servicios y de error del WS se hicieron con el puerto 8082 para demostrar la configuración externa (C2).
+- Las pruebas de servicios y de error del WS se hicieron con el puerto 8081 para demostrar la configuración externa (C2).
 - Pendiente de corrección antes de R1: el worker aún no envía `telefono` ni `correo` al WS (informado a la responsable el 21-11).
