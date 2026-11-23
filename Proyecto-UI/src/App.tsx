@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import NuevoLead from './components/NuevoLead'
+import Campanas from './components/Campanas'
 import Bandeja from './components/Bandeja'
 import ListaLeads from './components/ListaLeads'
 
-type Vista = 'anotar' | 'bandeja' | 'lista'
+type Vista = 'anotar' | 'campanas' | 'bandeja' | 'lista'
 
 const FLUJO = [
   { id: 'registrar', label: 'Registrar' },
-  { id: 'clasificar', label: 'Clasificar' },
   { id: 'seguimiento', label: 'Seguimiento' },
-  { id: 'pedido', label: 'Pedido / cierre' },
+  { id: 'campana', label: 'Campaña' },
+  { id: 'contacto', label: 'Contacto / pedido' },
 ] as const
 
 export default function App() {
@@ -21,7 +22,13 @@ export default function App() {
     setVista('bandeja')
   }
 
-  const pasoActivo = vista === 'anotar' ? 0 : vista === 'bandeja' ? 2 : 1
+  function trasCampana() {
+    setRefresco((n) => n + 1)
+    setVista('bandeja')
+  }
+
+  const pasoActivo =
+    vista === 'anotar' ? 0 : vista === 'bandeja' ? 1 : vista === 'campanas' ? 2 : 3
 
   return (
     <div className="app">
@@ -32,7 +39,9 @@ export default function App() {
           </span>
           <div>
             <p className="brand__name">Peluditos Pet Chile</p>
-            <p className="brand__tag">Gestión de interesados · proceso peluditosLead</p>
+            <p className="brand__tag">
+              Leads y oportunidades · peluditosLead / peluditosOportunidad
+            </p>
           </div>
         </div>
         <nav className="nav" aria-label="Secciones">
@@ -42,6 +51,16 @@ export default function App() {
             onClick={() => setVista('anotar')}
           >
             Anotar
+          </button>
+          <button
+            type="button"
+            className={vista === 'campanas' ? 'nav__btn nav__btn--on' : 'nav__btn'}
+            onClick={() => {
+              setVista('campanas')
+              setRefresco((n) => n + 1)
+            }}
+          >
+            Campañas
           </button>
           <button
             type="button"
@@ -88,20 +107,30 @@ export default function App() {
         </section>
 
         <p className="lede">
-          Una sola lista: anotas la consulta, la clasificas por servicio (repostería, baños o
-          repuestos) y haces el seguimiento sin perder el hilo entre canales.
+          {vista === 'anotar' &&
+            'Anota la consulta, clasifícala por servicio y haz el seguimiento sin perder el hilo entre canales.'}
+          {vista === 'campanas' &&
+            'Inicia una campaña por fecha relevante; el worker genera oportunidades y la bandeja muestra a quién contactar.'}
+          {vista === 'bandeja' &&
+            'Completa tareas de leads (seguimiento, motivo, pedido) y de campañas (contactar, pedido).'}
+          {vista === 'lista' &&
+            'Consulta en el web service los leads ya persistidos por el worker.'}
         </p>
 
         {vista === 'anotar' && <NuevoLead onRegistrado={trasRegistro} />}
+        {vista === 'campanas' && (
+          <Campanas onIniciada={trasCampana} refrescarToken={refresco} />
+        )}
         {vista === 'bandeja' && <Bandeja refrescarToken={refresco} />}
         {vista === 'lista' && <ListaLeads refrescarToken={refresco} />}
       </main>
 
       <footer className="pie">
         <span className="pie__paso">
-          {vista === 'anotar' && 'Paso: registrar y clasificar'}
-          {vista === 'bandeja' && 'Paso: bandeja de tareas Flowable'}
-          {vista === 'lista' && 'Paso: lista del web service'}
+          {vista === 'anotar' && 'Paso: registrar y clasificar lead'}
+          {vista === 'campanas' && 'Paso: iniciar campaña de oportunidades'}
+          {vista === 'bandeja' && 'Paso: bandeja Flowable (ambos procesos)'}
+          {vista === 'lista' && 'Paso: lista de leads del web service'}
         </span>
         <span>localhost:3000</span>
       </footer>

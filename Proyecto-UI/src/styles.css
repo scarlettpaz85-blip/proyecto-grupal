@@ -419,8 +419,48 @@ legend {
 }
 
 .tarea__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.8rem;
   color: var(--ink-soft);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge--lead {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+.badge--campana {
+  background: #efe6f8;
+  color: #6b3fa0;
+}
+
+.subtitulo {
+  margin: 1.5rem 0 0.5rem;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+code {
+  font-size: 0.85em;
+  font-weight: 700;
+  background: var(--bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
 }
 
 .bandeja__detalle h3 {

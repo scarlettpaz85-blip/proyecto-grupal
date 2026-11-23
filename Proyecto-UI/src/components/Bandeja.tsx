@@ -1,34 +1,41 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   FlowableTask,
-  FlowableVariable,
   completarTarea,
   etiquetaCanal,
   etiquetaServicio,
   listarTareas,
+  mapaVariables,
+  parseOportunidad,
+  procesoDeTarea,
   variablesDeTarea,
 } from '../api/flowable'
+
+const MOTIVOS = [
+  'Precio',
+  'Fecha no disponible',
+  'Sin respuesta',
+  'Compró en otro lugar',
+  'Otro',
+] as const
 
 interface Props {
   refrescarToken: number
 }
 
-function mapaVariables(vars: FlowableVariable[]): Record<string, string | boolean | number | null> {
-  const out: Record<string, string | boolean | number | null> = {}
-  for (const v of vars) {
-    out[v.name] = v.value
-  }
-  return out
-}
+type VarMap = Record<string, string | number | boolean | Record<string, unknown> | null>
 
 export default function Bandeja({ refrescarToken }: Props) {
   const [tareas, setTareas] = useState<FlowableTask[]>([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [seleccionada, setSeleccionada] = useState<FlowableTask | null>(null)
-  const [vars, setVars] = useState<Record<string, string | boolean | number | null>>({})
-  const [compro, setCompro] = useState(true)
+  const [vars, setVars] = useState<VarMap>({})
+  const [compro, setCompro] = useState<boolean | null>(null)
   const [motivo, setMotivo] = useState('')
+  const [comentarioNoCompra, setComentarioNoCompra] = useState('')
+  const [interesado, setInteresado] = useState<boolean | null>(null)
+  const [comentarioContacto, setComentarioContacto] = useState('')
   const [notaPedido, setNotaPedido] = useState('')
   const [guardando, setGuardando] = useState(false)
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -57,8 +64,11 @@ export default function Bandeja({ refrescarToken }: Props) {
   async function abrirTarea(tarea: FlowableTask) {
     setSeleccionada(tarea)
     setFeedback(null)
-    setCompro(true)
+    setCompro(null)
     setMotivo('')
+    setComentarioNoCompra('')
+    setInteresado(null)
+    setComentarioContacto('')
     setNotaPedido('')
     try {
       const lista = await variablesDeTarea(tarea.id)
@@ -70,20 +80,44 @@ export default function Bandeja({ refrescarToken }: Props) {
 
   async function enviarSeguimiento() {
     if (!seleccionada) return
-    if (!compro && !motivo.trim()) {
-      setFeedback('Si no compró, indica el motivo.')
+    if (compro === null) {
+      setFeedback('Indica si compró o no.')
+      return
+    }
+    setGuardando(true)
+    setFeedback(null)
+    try {
+      await completarTarea(seleccionada.id, { compro })
+      setSeleccionada(null)
+      await cargar()
+      setFeedback(
+        compro
+          ? 'Seguimiento registrado (compró).'
+          : 'Seguimiento registrado. Sigue la tarea de motivo de no compra.',
+      )
+    } catch (err) {
+      setFeedback(err instanceof Error ? err.message : 'Error al completar.')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  async function enviarMotivo() {
+    if (!seleccionada) return
+    if (!motivo.trim()) {
+      setFeedback('El motivo de no compra es obligatorio.')
       return
     }
     setGuardando(true)
     setFeedback(null)
     try {
       await completarTarea(seleccionada.id, {
-        compro,
-        motivoNoCompra: compro ? null : motivo.trim(),
+        motivoNoCompra: motivo.trim(),
+        comentarioNoCompra: comentarioNoCompra.trim() || null,
       })
       setSeleccionada(null)
       await cargar()
-      setFeedback('Seguimiento registrado.')
+      setFeedback('Motivo de no compra registrado.')
     } catch (err) {
       setFeedback(err instanceof Error ? err.message : 'Error al completar.')
     } finally {
@@ -101,7 +135,34 @@ export default function Bandeja({ refrescarToken }: Props) {
       })
       setSeleccionada(null)
       await cargar()
-      setFeedback('Pedido marcado como gestionado. Lead convertido.')
+      setFeedback('Pedido marcado como gestionado.')
+    } catch (err) {
+      setFeedback(err instanceof Error ? err.message : 'Error al completar.')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  async function enviarContacto() {
+    if (!seleccionada) return
+    if (interesado === null) {
+      setFeedback('Indica si el cliente está interesado.')
+      return
+    }
+    setGuardando(true)
+    setFeedback(null)
+    try {
+      await completarTarea(seleccionada.id, {
+        interesado,
+        comentarioContacto: comentarioContacto.trim() || null,
+      })
+      setSeleccionada(null)
+      await cargar()
+      setFeedback(
+        interesado
+          ? 'Contacto registrado (interesado). Puede seguir gestionar pedido de campaña.'
+          : 'Contacto registrado (sin compra).',
+      )
     } catch (err) {
       setFeedback(err instanceof Error ? err.message : 'Error al completar.')
     } finally {
@@ -133,13 +194,40 @@ export default function Bandeja({ refrescarToken }: Props) {
   }
 
   const key = seleccionada?.taskDefinitionKey ?? ''
+  const proceso = seleccionada ? procesoDeTarea(seleccionada) : 'lead'
+  const oportunidad = parseOportunidad(vars)
+  const esSeguimiento =
+    key === 'realizarSeguimiento' ||
+    seleccionada?.name.toLowerCase().includes('seguimiento') === true
+  const esMotivo =
+    key === 'registrarMotivo' ||
+    seleccionada?.name.toLowerCase().includes('motivo') === true
+  const esPedidoLead =
+    key === 'gestionarPedido' ||
+    (seleccionada?.name.toLowerCase().includes('pedido') === true &&
+      key !== 'gestionarPedidoCampana' &&
+      proceso === 'lead')
+  const esPedidoCampana =
+    key === 'gestionarPedidoCampana' ||
+    (proceso === 'campana' &&
+      seleccionada?.name.toLowerCase().includes('pedido') === true)
+  const esContacto =
+    key === 'contactarCliente' ||
+    seleccionada?.name.toLowerCase().includes('contactar') === true
+  const esRegistrar =
+    key === 'registrarLead' ||
+    (seleccionada?.name.toLowerCase().includes('registrar') === true &&
+      !esMotivo)
 
   return (
     <section className="panel" aria-labelledby="titulo-bandeja">
       <header className="panel__header panel__header--row">
         <div>
           <h2 id="titulo-bandeja">Bandeja de tareas</h2>
-          <p>Pendientes del proceso: seguimiento y gestión de pedido.</p>
+          <p>
+            Pendientes de leads (<code>peluditosLead</code>) y campañas (
+            <code>peluditosOportunidad</code>).
+          </p>
         </div>
         <button type="button" className="btn btn--ghost" onClick={() => void cargar()}>
           Actualizar
@@ -149,69 +237,113 @@ export default function Bandeja({ refrescarToken }: Props) {
       {cargando && <p className="muted">Cargando tareas…</p>}
       {error && <p className="aviso aviso--error">{error}</p>}
       {!cargando && !error && tareas.length === 0 && (
-        <p className="vacio">No hay tareas pendientes. Anota una consulta para empezar.</p>
+        <p className="vacio">
+          No hay tareas pendientes. Anota un lead o inicia una campaña para empezar.
+        </p>
       )}
 
       <div className="bandeja">
         <ul className="bandeja__lista" role="list">
-          {tareas.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                className={
-                  seleccionada?.id === t.id
-                    ? 'tarea tarea--activa'
-                    : 'tarea'
-                }
-                onClick={() => void abrirTarea(t)}
-              >
-                <span className="tarea__nombre">{t.name}</span>
-                <span className="tarea__meta">
-                  {new Date(t.createTime).toLocaleString('es-CL')}
-                </span>
-              </button>
-            </li>
-          ))}
+          {tareas.map((t) => {
+            const tipo = procesoDeTarea(t)
+            return (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  className={
+                    seleccionada?.id === t.id ? 'tarea tarea--activa' : 'tarea'
+                  }
+                  onClick={() => void abrirTarea(t)}
+                >
+                  <span className="tarea__nombre">{t.name}</span>
+                  <span className="tarea__meta">
+                    <span
+                      className={
+                        tipo === 'campana' ? 'badge badge--campana' : 'badge badge--lead'
+                      }
+                    >
+                      {tipo === 'campana' ? 'Campaña' : 'Lead'}
+                    </span>
+                    {new Date(t.createTime).toLocaleString('es-CL')}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
         </ul>
 
         {seleccionada && (
           <div className="bandeja__detalle">
             <h3>{seleccionada.name}</h3>
-            <dl className="ficha">
-              <div>
-                <dt>Nombre</dt>
-                <dd>{String(vars.nombre ?? '—')}</dd>
-              </div>
-              <div>
-                <dt>Canal</dt>
-                <dd>{etiquetaCanal(String(vars.canal ?? ''))}</dd>
-              </div>
-              <div>
-                <dt>Interés</dt>
-                <dd>{String(vars.interes ?? '—')}</dd>
-              </div>
-              <div>
-                <dt>Servicio</dt>
-                <dd>{etiquetaServicio(String(vars.servicioRequerido ?? ''))}</dd>
-              </div>
-              {vars.leadId != null && (
-                <div>
-                  <dt>Lead ID</dt>
-                  <dd>{String(vars.leadId)}</dd>
-                </div>
+            <p className="muted">
+              Proceso:{' '}
+              {proceso === 'campana' ? 'Oportunidad comercial' : 'Gestión de leads'}
+              {vars.nombreCampana != null && (
+                <> · Campaña: {String(vars.nombreCampana)}</>
               )}
-              <div>
-                <dt>Teléfono</dt>
-                <dd>{String(vars.telefono ?? '—')}</dd>
-              </div>
-              <div>
-                <dt>Correo</dt>
-                <dd>{String(vars.correo ?? '—')}</dd>
-              </div>
-            </dl>
+            </p>
 
-            {(key === 'realizarSeguimiento' ||
-              seleccionada.name.toLowerCase().includes('seguimiento')) && (
+            {proceso === 'lead' && (
+              <dl className="ficha">
+                <div>
+                  <dt>Nombre</dt>
+                  <dd>{String(vars.nombre ?? '—')}</dd>
+                </div>
+                <div>
+                  <dt>Canal</dt>
+                  <dd>{etiquetaCanal(String(vars.canal ?? ''))}</dd>
+                </div>
+                <div>
+                  <dt>Interés</dt>
+                  <dd>{String(vars.interes ?? '—')}</dd>
+                </div>
+                <div>
+                  <dt>Servicio</dt>
+                  <dd>{etiquetaServicio(String(vars.servicioRequerido ?? ''))}</dd>
+                </div>
+                {vars.leadId != null && (
+                  <div>
+                    <dt>Lead ID</dt>
+                    <dd>{String(vars.leadId)}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt>Teléfono</dt>
+                  <dd>{String(vars.telefono ?? '—')}</dd>
+                </div>
+                <div>
+                  <dt>Correo</dt>
+                  <dd>{String(vars.correo ?? '—')}</dd>
+                </div>
+              </dl>
+            )}
+
+            {proceso === 'campana' && oportunidad && (
+              <dl className="ficha">
+                <div>
+                  <dt>Cliente</dt>
+                  <dd>{oportunidad.cliente || '—'}</dd>
+                </div>
+                <div>
+                  <dt>Teléfono</dt>
+                  <dd>{oportunidad.telefono || '—'}</dd>
+                </div>
+                <div>
+                  <dt>Mascota</dt>
+                  <dd>{oportunidad.mascota || '—'}</dd>
+                </div>
+                <div>
+                  <dt>Fecha relevante</dt>
+                  <dd>{oportunidad.fechaRelevante || '—'}</dd>
+                </div>
+                <div>
+                  <dt>ID oportunidad</dt>
+                  <dd>{oportunidad.idOportunidad || '—'}</dd>
+                </div>
+              </dl>
+            )}
+
+            {esSeguimiento && (
               <div className="form form--compact">
                 <fieldset>
                   <legend>¿Compró?</legend>
@@ -219,7 +351,7 @@ export default function Bandeja({ refrescarToken }: Props) {
                     <input
                       type="radio"
                       name="compro"
-                      checked={compro}
+                      checked={compro === true}
                       onChange={() => setCompro(true)}
                     />
                     Sí
@@ -228,22 +360,15 @@ export default function Bandeja({ refrescarToken }: Props) {
                     <input
                       type="radio"
                       name="compro"
-                      checked={!compro}
+                      checked={compro === false}
                       onChange={() => setCompro(false)}
                     />
                     No
                   </label>
                 </fieldset>
-                {!compro && (
-                  <label>
-                    Motivo de no compra
-                    <input
-                      value={motivo}
-                      onChange={(e) => setMotivo(e.target.value)}
-                      placeholder="Ej. precio, demora, eligió otro"
-                    />
-                  </label>
-                )}
+                <p className="muted">
+                  Si no compró, el motivo se pedirá en la siguiente tarea del proceso.
+                </p>
                 <button
                   type="button"
                   className="btn btn--primary"
@@ -255,8 +380,43 @@ export default function Bandeja({ refrescarToken }: Props) {
               </div>
             )}
 
-            {(key === 'gestionarPedido' ||
-              seleccionada.name.toLowerCase().includes('pedido')) && (
+            {esMotivo && (
+              <div className="form form--compact">
+                <label>
+                  Motivo de no compra
+                  <select
+                    value={motivo}
+                    onChange={(e) => setMotivo(e.target.value)}
+                    required
+                  >
+                    <option value="">Selecciona un motivo</option>
+                    {MOTIVOS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Comentario (opcional)
+                  <input
+                    value={comentarioNoCompra}
+                    onChange={(e) => setComentarioNoCompra(e.target.value)}
+                    placeholder="Detalle adicional"
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  disabled={guardando}
+                  onClick={() => void enviarMotivo()}
+                >
+                  {guardando ? 'Guardando…' : 'Registrar motivo'}
+                </button>
+              </div>
+            )}
+
+            {esPedidoLead && (
               <div className="form form--compact">
                 <p className="muted">
                   Coordina el pedido según la ruta:{' '}
@@ -283,8 +443,71 @@ export default function Bandeja({ refrescarToken }: Props) {
               </div>
             )}
 
-            {(key === 'registrarLead' ||
-              seleccionada.name.toLowerCase().includes('registrar')) && (
+            {esContacto && (
+              <div className="form form--compact">
+                <fieldset>
+                  <legend>¿Interesado?</legend>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="interesado"
+                      checked={interesado === true}
+                      onChange={() => setInteresado(true)}
+                    />
+                    Sí
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="interesado"
+                      checked={interesado === false}
+                      onChange={() => setInteresado(false)}
+                    />
+                    No
+                  </label>
+                </fieldset>
+                <label>
+                  Comentario del contacto (opcional)
+                  <input
+                    value={comentarioContacto}
+                    onChange={(e) => setComentarioContacto(e.target.value)}
+                    placeholder="Notas de la llamada o mensaje"
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  disabled={guardando}
+                  onClick={() => void enviarContacto()}
+                >
+                  {guardando ? 'Guardando…' : 'Completar contacto'}
+                </button>
+              </div>
+            )}
+
+            {esPedidoCampana && (
+              <div className="form form--compact">
+                <p className="muted">Gestiona el pedido de la campaña.</p>
+                <label>
+                  Nota (opcional)
+                  <input
+                    value={notaPedido}
+                    onChange={(e) => setNotaPedido(e.target.value)}
+                    placeholder="Ej. pedido de campaña confirmado"
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  disabled={guardando}
+                  onClick={() => void enviarPedido()}
+                >
+                  {guardando ? 'Guardando…' : 'Marcar pedido de campaña'}
+                </button>
+              </div>
+            )}
+
+            {esRegistrar && (
               <div className="form form--compact">
                 <p className="muted">
                   Confirma los datos y envía al sistema (clasificación).
@@ -304,7 +527,9 @@ export default function Bandeja({ refrescarToken }: Props) {
               <p
                 className={
                   feedback.toLowerCase().includes('error') ||
-                  feedback.toLowerCase().includes('flowable')
+                  feedback.toLowerCase().includes('flowable') ||
+                  feedback.toLowerCase().includes('indica') ||
+                  feedback.toLowerCase().includes('obligatorio')
                     ? 'aviso aviso--error'
                     : 'aviso aviso--ok'
                 }
