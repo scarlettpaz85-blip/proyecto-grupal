@@ -1,9 +1,13 @@
 # Proyecto-WS – Web Services Java
 
-Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle, Jakarta REST, Jersey y servidor Grizzly.
+Web Services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle, Jakarta REST, Jersey y servidor Grizzly.
+
+El componente permite gestionar clientes potenciales (leads), seguimientos, clientes, fechas relevantes y oportunidades comerciales, mediante servicios REST conectados a Microsoft SQL Server e integrados con los procesos de negocio de Flowable OSS.
 
 **Responsable del componente:** Christopher Comas Celis  
 **Desarrollo de base de datos y servicios:** Jennifer Igor España
+
+---
 
 ## 1. Tecnologías utilizadas
 
@@ -17,19 +21,17 @@ Web services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle,
 - Microsoft JDBC Driver for SQL Server 13.2.1.jre11.
 - Git y GitHub para control de versiones.
 - Tailscale para la comunicación privada entre los equipos del grupo.
+- Visual Studio Code como entorno de desarrollo.
 
 ## 2. Estructura del componente
 
 ```text
 Proyecto-WS/
 ├── BaseDatos-Java/
-│   ├── Evidencias-base-de-datos/
-│   ├── Evidencias-Java/
-│   ├── Scripts/
-│   └── README.md
 ├── Evidencias-EV-3/
 ├── Evidencias/
 │   └── Punta_a_Punta/
+├── gradle/
 ├── src/
 │   └── main/
 │       └── java/cl/peluditos/ws/
@@ -49,51 +51,69 @@ Proyecto-WS/
 └── README.md
 ```
 
+La carpeta `BaseDatos-Java` se mantiene como parte de la estructura del proyecto. Su contenido interno debe revisarse para documentar con precisión los archivos y recursos disponibles.
+
 ## 3. Base de datos de negocio
 
-El servicio utiliza Microsoft SQL Server 2017 para almacenar la información del emprendimiento.
+El servicio utiliza Microsoft SQL Server 2017 para almacenar la información relacionada con la gestión comercial de Peluditos Pet Chile.
 
-**Base de datos:** `DB_PeluditosPetChile`
+**Nombre de la base de datos:** `DB_PeluditosPetChile`
 
-La base de datos contiene seis tablas:
+La estructura de datos del proyecto contempla seis tablas principales:
 
-1. `Leads`: información de los interesados y estado comercial.
+1. `Leads`: información de los interesados y su estado comercial.
 2. `Seguimientos`: registro de contactos y observaciones.
 3. `Clientes`: información de los clientes registrados.
 4. `Mascotas`: mascotas asociadas a cada cliente.
 5. `FechasRelevantes`: fechas importantes para futuras campañas.
 6. `OportunidadesComerciales`: oportunidades comerciales generadas.
 
-Los scripts de creación, pruebas y consultas se encuentran en `BaseDatos-Java/Scripts/`.
+Los scripts y recursos relacionados con la base de datos deben consultarse en los archivos disponibles dentro del repositorio.
 
 ## 4. Configuración de conexión
 
-La conexión JDBC se implementa en `Database.java`.
+La conexión con SQL Server se implementa mediante JDBC en la clase `Database.java`.
 
-El proyecto utiliza variables de entorno para configurar la conexión y proteger las credenciales:
+La configuración de conexión documentada para el proyecto contempla los siguientes parámetros:
 
-- `PELUDITOS_DB_HOST`: servidor de SQL Server.
-- `PELUDITOS_DB_PORT`: puerto de SQL Server.
-- `PELUDITOS_DB_NAME`: nombre de la base de datos.
-- `PELUDITOS_DB_USER`: usuario de SQL Server.
-- `PELUDITOS_DB_PASSWORD`: contraseña del usuario de SQL Server.
-- `PELUDITOS_WS_PORT`: puerto de ejecución del servicio REST.
+- Servidor: `localhost`.
+- Puerto: `1433`.
+- Base de datos: `DB_PeluditosPetChile`.
+- Usuario: `peluditos_java`.
+- Contraseña: obtenida mediante la variable de entorno `PELUDITOS_DB_PASSWORD`.
+
+El README y el manual técnico contemplan las siguientes variables de entorno:
+
+| Variable | Descripción |
+|---|---|
+| `PELUDITOS_DB_HOST` | Servidor de SQL Server. |
+| `PELUDITOS_DB_PORT` | Puerto de SQL Server. |
+| `PELUDITOS_DB_NAME` | Nombre de la base de datos. |
+| `PELUDITOS_DB_USER` | Usuario de SQL Server. |
+| `PELUDITOS_DB_PASSWORD` | Contraseña del usuario de SQL Server. |
+| `PELUDITOS_WS_PORT` | Puerto de ejecución del servicio REST. |
+
+**Nota de configuración:** está pendiente revisar y alinear la implementación de `Database.java` con la configuración mediante variables de entorno documentada en este archivo. En particular, se debe comprobar cómo se obtienen el servidor, el puerto, la base de datos y el usuario.
 
 No se deben guardar contraseñas ni credenciales personales dentro del repositorio.
 
 ## 5. Cómo ejecutar el servicio
 
-### Requisitos
+### 5.1. Requisitos
+
+Para ejecutar el componente se requiere:
 
 - JDK 21 instalado.
+- Gradle Wrapper incluido en el proyecto.
+- Microsoft SQL Server 2017.
 - SQL Server iniciado.
 - Base de datos `DB_PeluditosPetChile` creada.
-- Variables de entorno de conexión configuradas.
-- Gradle Wrapper incluido en el proyecto.
+- Usuario y permisos de acceso configurados.
+- Conexión JDBC correctamente configurada.
 
-### Configuración en PowerShell
+### 5.2. Configuración en PowerShell
 
-Ejemplo de configuración:
+Ejemplo de configuración de variables de entorno para la sesión actual:
 
 ```powershell
 $env:PELUDITOS_DB_HOST="localhost"
@@ -106,15 +126,17 @@ $env:PELUDITOS_WS_PORT="8081"
 
 Los valores de usuario y contraseña deben corresponder a las credenciales configuradas en SQL Server.
 
-### Compilar el proyecto
+### 5.3. Compilar el proyecto
 
-Desde la carpeta `Proyecto-WS`:
+Desde la carpeta `Proyecto-WS`, ejecutar:
 
 ```powershell
 .\gradlew.bat build
 ```
 
-### Ejecutar el servicio
+### 5.4. Ejecutar el servicio
+
+Desde la misma carpeta:
 
 ```powershell
 .\gradlew.bat run
@@ -124,21 +146,29 @@ Si no se configura `PELUDITOS_WS_PORT`, el servicio utiliza el puerto predetermi
 
 La dirección base del servicio es:
 
-`http://localhost:8081/api`
+```text
+http://localhost:8081/api
+```
 
 Si se configura el puerto `8082`, la dirección base será:
 
-`http://localhost:8082/api`
+```text
+http://localhost:8082/api
+```
 
-### Comprobar el funcionamiento
+### 5.5. Comprobar el funcionamiento
 
 Abrir en el navegador:
 
-`http://localhost:8081/api/health`
+```text
+http://localhost:8081/api/health
+```
 
 La respuesta esperada es:
 
-`Servicio Peluditos - Estado: OK`
+```text
+Servicio Peluditos - Estado: OK
+```
 
 ## 6. Servicios REST implementados
 
@@ -158,9 +188,9 @@ La respuesta esperada es:
 
 ## 7. Registro y gestión de leads
 
-### 7.1 Registro de leads
+### 7.1. Registro de leads
 
-Ruta: `POST /api/leads`
+**Ruta:** `POST /api/leads`
 
 Recibe los siguientes datos:
 
@@ -173,9 +203,9 @@ Recibe los siguientes datos:
 
 El servicio valida los campos obligatorios, registra la información en SQL Server y devuelve el identificador del lead creado.
 
-### 7.2 Consulta de leads
+### 7.2. Consulta de leads
 
-Ruta: `GET /api/leads?page=1&size=10`
+**Ruta:** `GET /api/leads?page=1&size=10`
 
 Permite consultar los leads mediante paginación.
 
@@ -183,21 +213,21 @@ Permite consultar los leads mediante paginación.
 - `size`: cantidad de registros por página.
 - Valores predeterminados: página 1 y tamaño 10.
 
-### 7.3 Consulta por identificador
+### 7.3. Consulta por identificador
 
-Ruta: `GET /api/leads/{id}`
+**Ruta:** `GET /api/leads/{id}`
 
-Permite obtener los datos de un lead específico. Si no existe, devuelve un error 404.
+Permite obtener los datos de un lead específico. Si no existe, devuelve un error HTTP 404.
 
-### 7.4 Registro de seguimientos
+### 7.4. Registro de seguimientos
 
-Ruta: `POST /api/leads/{id}/seguimientos`
+**Ruta:** `POST /api/leads/{id}/seguimientos`
 
 Permite registrar información de seguimiento asociada al lead, como medio de contacto, comentario y resultado.
 
-### 7.5 Cierre de leads
+### 7.5. Cierre de leads
 
-Ruta: `PUT /api/leads/{id}/cierre`
+**Ruta:** `PUT /api/leads/{id}/cierre`
 
 Permite registrar si el interesado realizó una compra.
 
@@ -207,7 +237,10 @@ Datos recibidos:
 - `motivoNoCompra`: motivo cuando no se concreta la compra.
 - `comentarioNoCompra`: comentario adicional opcional.
 
-Los estados utilizados son `Convertido` y `No convertido`.
+Los estados utilizados son:
+
+- `Convertido`.
+- `No convertido`.
 
 Cuando se registra una compra, el servicio crea el cliente asociado al lead, evitando duplicar clientes del mismo origen.
 
@@ -215,34 +248,34 @@ El campo `acepta_comunicaciones` se mantiene en falso cuando no existe consentim
 
 ## 8. Gestión de fechas relevantes y oportunidades
 
-### 8.1 Consultar fechas relevantes
+### 8.1. Consultar fechas relevantes
 
-Ruta: `GET /api/fechas-relevantes`
+**Ruta:** `GET /api/fechas-relevantes`
 
 Permite consultar las fechas relevantes activas registradas en SQL Server.
 
-### 8.2 Generar oportunidades comerciales
+### 8.2. Generar oportunidades comerciales
 
-Ruta: `POST /api/oportunidades/generar`
+**Ruta:** `POST /api/oportunidades/generar`
 
 Recibe:
 
-- `idFechaRelevante`
-- `processInstanceId`
+- `idFechaRelevante`.
+- `processInstanceId`.
 
 El servicio genera oportunidades para los clientes que tienen habilitada la aceptación de comunicaciones.
 
 Además, verifica que no existan oportunidades duplicadas para el mismo cliente y fecha relevante.
 
-### 8.3 Consultar oportunidades
+### 8.3. Consultar oportunidades
 
-Ruta: `GET /api/oportunidades?idFechaRelevante={id}`
+**Ruta:** `GET /api/oportunidades?idFechaRelevante={id}`
 
 Permite consultar las oportunidades comerciales y sus datos asociados.
 
-### 8.4 Registrar resultado de una oportunidad
+### 8.4. Registrar resultado de una oportunidad
 
-Ruta: `PUT /api/oportunidades/{id}/resultado`
+**Ruta:** `PUT /api/oportunidades/{id}/resultado`
 
 Recibe:
 
@@ -269,17 +302,17 @@ Se contemplan respuestas HTTP para diferentes situaciones:
 | 500 | Error interno del servidor o base de datos. |
 | 503 | Servicio de base de datos no disponible, cuando se identifica un error de conexión. |
 
-Los mensajes de respuesta no exponen contraseñas ni información interna de conexión.
+Los mensajes de respuesta no deben exponer contraseñas ni información interna de conexión.
 
 ## 10. CORS
 
 Se incorpora `CorsFilter.java` para gestionar las solicitudes de origen cruzado (CORS) y permitir la comunicación entre la interfaz web y el servicio REST según la configuración del proyecto.
 
-## 11. Integración con Flowable y External Worker
+## 11. Integración con Flowable y External Workers
 
 El Web Service Java dispone de operaciones REST para integrarse con el proceso de negocio gestionado mediante Flowable OSS y External Workers.
 
-### 11.1 Comunicación entre componentes
+### 11.1. Comunicación entre componentes
 
 Para permitir la comunicación entre los computadores de los integrantes se utiliza Tailscale, una red privada que facilita el acceso al Web Service Java.
 
@@ -289,7 +322,7 @@ El servicio se ejecuta escuchando en las interfaces de red para permitir las con
 
 La dirección base configurada para el Worker debe apuntar al equipo donde se ejecuta el Web Service Java, utilizando la conexión privada de Tailscale.
 
-### 11.2 Registro y cierre de leads
+### 11.2. Registro y cierre de leads
 
 El proceso de integración contempla:
 
@@ -307,7 +340,7 @@ También se probaron los resultados de cierre:
 - Lead convertido: se registró el estado `Convertido` y se creó el cliente asociado.
 - Lead no convertido: se registró el estado `No convertido` y el motivo correspondiente.
 
-### 11.3 Campañas y oportunidades
+### 11.3. Campañas y oportunidades
 
 El proceso contempla:
 
@@ -329,7 +362,7 @@ Se verificó que:
 - Se registró otra oportunidad con estado `Sin compra`.
 - Los resultados se comprobaron mediante consultas directas en SQL Server.
 
-### 11.4 Verificación de integración entre Flowable y SQL Server
+### 11.4. Verificación de integración entre Flowable y SQL Server
 
 Como parte de las pruebas conjuntas del equipo se realizaron las siguientes verificaciones:
 
@@ -347,14 +380,13 @@ Estas pruebas permitieron comprobar la comunicación entre Flowable, los Externa
 
 ## 12. Pruebas y evidencias
 
-Las evidencias del componente se encuentran en:
+Las evidencias del componente se organizan en las siguientes carpetas del repositorio:
 
-- `BaseDatos-Java/Evidencias-base-de-datos/`
-- `BaseDatos-Java/Evidencias-Java/`
 - `Evidencias-EV-3/`
 - `Evidencias/Punta_a_Punta/`
+- `BaseDatos-Java/` (contenido pendiente de revisión).
 
-Incluyen capturas de creación de tablas, conexión con SQL Server, compilación, ejecución del servicio, operaciones REST, integración con Flowable y verificaciones de persistencia.
+Las evidencias disponibles del proyecto contemplan capturas de conexión con SQL Server, compilación, ejecución del servicio, operaciones REST, integración con Flowable y verificaciones de persistencia.
 
 Durante las pruebas se verificaron:
 
@@ -378,7 +410,7 @@ Durante las pruebas se verificaron:
 - Ejecución de Workers para registrar resultados de oportunidades.
 - Verificación de los resultados de integración directamente en SQL Server.
 
-### 12.1 Evidencias de integración
+### 12.1. Evidencias de integración
 
 Entre las pruebas de integración realizadas se encuentran:
 
@@ -400,9 +432,9 @@ Las consultas de verificación permiten revisar los registros almacenados direct
 
 ## 13. Estado del componente
 
-El componente cuenta con:
+El componente cuenta con los siguientes avances documentados:
 
-- Conexión JDBC con SQL Server.
+- Conexión JDBC con SQL Server en el entorno de desarrollo original.
 - Persistencia y consulta de leads.
 - Consulta de leads con paginación.
 - Registro de seguimientos.
@@ -412,7 +444,7 @@ El componente cuenta con:
 - Generación y consulta de oportunidades comerciales.
 - Registro de resultados comerciales.
 - Configuración CORS.
-- Puerto configurable mediante `PELUDITOS_WS_PORT`.
+- Puerto configurable mediante `PELUDITOS_WS_PORT`, según la configuración documentada.
 - Validaciones y manejo de errores.
 - Evidencias de compilación, ejecución y pruebas de persistencia.
 - Pruebas de comunicación remota mediante Tailscale.
@@ -422,3 +454,24 @@ El componente cuenta con:
 Las pruebas realizadas permitieron validar la comunicación entre los componentes Java, SQL Server y Flowable para los escenarios documentados.
 
 La validación global de todos los recorridos de punta a punta del proyecto, incluyendo la interfaz, los procesos completos y la gestión de pedidos, corresponde a las pruebas generales de integración del equipo.
+
+## 14. Pendientes de configuración y continuidad
+
+Para preparar nuevamente el entorno de desarrollo y continuar trabajando en el componente se consideran las siguientes tareas:
+
+- Revisar el contenido de la carpeta `BaseDatos-Java`.
+- Preparar la base de datos `DB_PeluditosPetChile` en el nuevo entorno cuando corresponda.
+- Configurar el usuario y los permisos de acceso a SQL Server.
+- Comprobar la conectividad TCP/IP mediante el puerto `1433`.
+- Revisar la implementación de variables de entorno en `Database.java` y alinearla con la documentación.
+- Comprobar la conexión JDBC desde el proyecto Java.
+- Ejecutar las pruebas de compilación y funcionamiento en el nuevo entorno.
+- Mantener las evidencias y documentación actualizadas en GitHub.
+
+La instalación de las herramientas de desarrollo en un nuevo equipo no implica que la base de datos original se encuentre recuperada. La reconstrucción o recuperación de la base de datos debe verificarse por separado.
+
+---
+
+**Proyecto grupal: Peluditos Pet Chile**  
+**Repositorio:** https://github.com/scarlettpaz85-blip/proyecto-grupal  
+**Rama principal:** `main`
