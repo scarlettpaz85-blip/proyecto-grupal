@@ -3,6 +3,7 @@ import NuevoLead from './components/NuevoLead'
 import Campanas from './components/Campanas'
 import Bandeja from './components/Bandeja'
 import ListaLeads from './components/ListaLeads'
+import { UI_PUBLIC_ORIGIN } from './config'
 
 type Vista = 'anotar' | 'campanas' | 'bandeja' | 'lista'
 
@@ -132,7 +133,9 @@ export default function App() {
           {vista === 'bandeja' && 'Paso: bandeja Flowable (ambos procesos)'}
           {vista === 'lista' && 'Paso: lista de leads del web service'}
         </span>
-        <span>localhost:3000</span>
+        <span title={UI_PUBLIC_ORIGIN}>
+          {import.meta.env.DEV ? 'localhost:3000' : UI_PUBLIC_ORIGIN.replace(/^https?:\/\//, '')}
+        </span>
       </footer>
     </div>
   )

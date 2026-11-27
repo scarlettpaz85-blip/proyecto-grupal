@@ -1,3 +1,5 @@
+import { API_BASE } from '../config'
+
 export interface LeadWs {
   id: number
   nombre: string
@@ -11,7 +13,7 @@ export interface LeadWs {
 }
 
 export async function listarLeadsWs(): Promise<LeadWs[]> {
-  const response = await fetch('/api/leads', {
+  const response = await fetch(`${API_BASE}/leads`, {
     headers: { Accept: 'application/json' },
   })
   if (!response.ok) {
@@ -22,7 +24,7 @@ export async function listarLeadsWs(): Promise<LeadWs[]> {
 
 export async function healthWs(): Promise<boolean> {
   try {
-    const response = await fetch('/api/health')
+    const response = await fetch(`${API_BASE}/health`)
     return response.ok
   } catch {
     return false

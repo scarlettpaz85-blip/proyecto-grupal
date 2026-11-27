@@ -1,7 +1,8 @@
-const FLOWABLE_BASE = '/flowable-rest/service'
+import { FLOWABLE_AUTH, FLOWABLE_BASE } from '../config'
+
 export const PROCESS_KEY_LEAD = 'peluditosLead'
 export const PROCESS_KEY_OPORTUNIDAD = 'peluditosOportunidad'
-const AUTH = 'Basic ' + btoa('rest-admin:test')
+const AUTH = FLOWABLE_AUTH
 
 export type Canal = 'instagram' | 'whatsapp' | 'facebook' | 'tiktok' | 'web' | 'telefono'
 export type Servicio = 'reposteria' | 'banos' | 'repuestos'

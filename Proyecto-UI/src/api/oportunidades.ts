@@ -1,3 +1,5 @@
+import { API_BASE } from '../config'
+
 export interface FechaRelevante {
   idFechaRelevante: number
   nombre: string
@@ -20,7 +22,7 @@ export interface OportunidadWs {
 }
 
 export async function listarFechasRelevantes(): Promise<FechaRelevante[]> {
-  const response = await fetch('/api/fechas-relevantes', {
+  const response = await fetch(`${API_BASE}/fechas-relevantes`, {
     headers: { Accept: 'application/json' },
   })
   if (!response.ok) {
@@ -36,7 +38,7 @@ export async function listarOportunidades(
     idFechaRelevante != null && idFechaRelevante > 0
       ? `?idFechaRelevante=${idFechaRelevante}`
       : ''
-  const response = await fetch(`/api/oportunidades${qs}`, {
+  const response = await fetch(`${API_BASE}/oportunidades${qs}`, {
     headers: { Accept: 'application/json' },
   })
   if (!response.ok) {

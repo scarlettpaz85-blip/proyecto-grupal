@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { LeadWs, healthWs, listarLeadsWs } from '../api/leads'
 import { etiquetaCanal } from '../api/flowable'
+import { API_BASE } from '../config'
 
 interface Props {
   refrescarToken: number
@@ -42,7 +43,7 @@ export default function ListaLeads({ refrescarToken }: Props) {
         </div>
         <span
           className={ok ? 'pill pill--ok' : 'pill pill--warn'}
-          title="Estado de http://localhost:8081/api/health"
+          title={`Estado de ${API_BASE}/health`}
         >
           WS {ok === null ? '…' : ok ? 'activo' : 'sin respuesta'}
         </span>
@@ -51,7 +52,7 @@ export default function ListaLeads({ refrescarToken }: Props) {
       {error && <p className="aviso aviso--error">{error}</p>}
       {ok === false && (
         <p className="muted">
-          El web service no responde en el puerto 8081. La bandeja de Flowable sigue
+          El web service no responde en {API_BASE}. La bandeja de Flowable sigue
           funcionando igual.
         </p>
       )}
