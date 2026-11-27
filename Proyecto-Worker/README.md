@@ -57,13 +57,13 @@ chmod +x start-worker.sh
 ./start-worker.sh
 ```
 
-### Windows PowerShell
+## Desde PowerShell, ubicado en esta carpeta:
 
-Desde esta carpeta:
-
-```powershell
 .\start-worker.ps1
-```
+
+Desde CMD, ubicado en esta carpeta:
+
+powershell -ExecutionPolicy Bypass -File .\start-worker.ps1
 
 ## Tópicos y funcionamiento
 
