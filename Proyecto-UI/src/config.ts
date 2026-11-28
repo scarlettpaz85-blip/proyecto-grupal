@@ -24,8 +24,14 @@ export const FLOWABLE_BASE = trimSlash(
 )
 
 const flowableUser = import.meta.env.VITE_FLOWABLE_USER?.trim() || 'rest-admin'
-const flowablePassword =
-  import.meta.env.VITE_FLOWABLE_PASSWORD?.trim() || 'test'
+/** Sin valor por defecto: la contraseña se define solo en `.env` (no se sube al repositorio). */
+const flowablePassword = import.meta.env.VITE_FLOWABLE_PASSWORD?.trim() || ''
+
+if (!flowablePassword) {
+  console.warn(
+    'Falta VITE_FLOWABLE_PASSWORD en Proyecto-UI/.env (copie .env.example como .env).',
+  )
+}
 
 export const FLOWABLE_AUTH =
   'Basic ' + btoa(`${flowableUser}:${flowablePassword}`)
