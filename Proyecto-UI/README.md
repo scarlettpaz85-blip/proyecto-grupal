@@ -3,9 +3,10 @@
 Interfaz para anotar interesados, iniciar campañas de oportunidades, ver la bandeja de Flowable (ambos procesos) y consultar leads / oportunidades en el web service.
 
 **Stack:** TypeScript + React + Vite (puerto 3000)  
-**Responsable:** Eunices Belén Trujillo
+**Responsable:** Eunices Belén Trujillo  
+**Origen de ejecución (acordado):** `http://localhost:3000`
 
-Elegimos este stack porque el resto del grupo va en Java (WS/Worker) y acá hacía falta algo de front para formularios y bandeja. TypeScript ayuda con las variables del proceso; Vite deja el proxy a Flowable (`:8080`) y al WS (`:8081`) sin pelear con CORS.
+En desarrollo, Vite hace de proxy a Flowable (`:8080`) y al WS (`:8081`). En producción las URLs absolutas se completan en `.env.production` solo cuando el equipo las informe.
 
 ## Ejecutar
 
