@@ -1,6 +1,7 @@
+
 # Diagrama de arquitectura — Peluditos Pet Chile
 
-> Versión: **Entrega 3** (dos procesos de negocio, configuración externa y despliegue previsto).
+> Versión: **Entrega 3**, con actualización documental para la **Entrega 4**. Se conservan los dos procesos de negocio, la configuración externa y el despliegue previsto.
 > Fuente editable: los bloques Mermaid de este archivo. Imágenes: [`modelo-arquitectura.png`](modelo-arquitectura.png) (componentes) y [`modelo-despliegue.png`](modelo-despliegue.png) (entornos).
 
 ## 1. Componentes y comunicaciones
@@ -73,7 +74,6 @@ flowchart TB
     E -->|"https"| p0
     end
 
-
     subgraph DEV["Entorno de desarrollo (Entregas 2 y 3)"]
     direction TB
     subgraph PC1["PC 1 – Scarlett"]
@@ -135,3 +135,88 @@ Detalle de variables, tópicos y contratos REST en [`ACUERDOS-INTEGRACION.md`](.
 | Entrega 1 | Flowable Cloud (Iplacex) + external worker + web service en memoria. La integración de punta a punta quedó pendiente por la falla del Sandbox y la caída de la plataforma (incidente de seguridad informado por el profesor). |
 | Entrega 2 | Migración a Flowable OSS local con PostgreSQL (motor), interfaz propia y base de datos de negocio en SQL Server 2017. Prueba de punta a punta exitosa el 07-11-2026, con los dos caminos del proceso. Componentes repartidos en dos PCs unidos por Tailscale. |
 | Entrega 3 | Segundo proceso (oportunidades comerciales), tarea de motivo de no compra, configuración externa por variables de entorno y diagrama de despliegue (desarrollo vs. destino). |
+
+---
+
+## Actualización de arquitectura – Entrega 4
+
+Esta sección complementa la arquitectura documentada en las entregas anteriores. Se conserva la estructura original y se incorporan las verificaciones y decisiones correspondientes a la integración de plataformas.
+
+### 4.1. Puertos del entorno de desarrollo
+
+Se registran los siguientes valores confirmados para el entorno de desarrollo de Jennifer:
+
+| Componente | Puerto | Observación |
+|---|---:|---|
+| Web Service Java | `8081` | Puerto utilizado por el servicio REST |
+| SQL Server | `1435` | Puerto utilizado actualmente por SQL Server en el entorno local |
+
+**Aclaración sobre el diagrama original:** el puerto `1433` que aparece en el dibujo de desarrollo corresponde a la configuración anterior/documentada. Para las pruebas actuales de Jennifer se confirma el puerto `1435`. Se conserva el dato original para mantener el historial de arquitectura.
+
+Estos puertos son valores del entorno de desarrollo y no deben asumirse como los definitivos del despliegue remoto.
+
+### 4.2. Integración y responsabilidades de los componentes
+
+En la Entrega 4 se mantiene la arquitectura distribuida en componentes con responsabilidades diferenciadas:
+
+- La interfaz propia permite iniciar procesos y realizar las tareas de usuario.
+- Flowable OSS administra las instancias de los procesos BPMN y sus tareas.
+- El External Worker atiende los tópicos configurados, ejecuta las operaciones solicitadas y comunica el resultado a Flowable.
+- El Web Service Java ofrece las operaciones REST relacionadas con los datos del negocio.
+- PostgreSQL mantiene la persistencia interna del motor Flowable.
+- SQL Server mantiene la información de negocio de Peluditos Pet Chile.
+
+### 4.3. Persistencia y recuperación
+
+La solución utiliza dos bases de datos relacionales con finalidades distintas:
+
+- PostgreSQL para la información interna de Flowable.
+- SQL Server para la información comercial almacenada por el Web Service.
+
+La comprobación de persistencia después del reinicio de los componentes debe registrarse mediante pruebas y evidencias de la Entrega 4. No se debe dar por verificada hasta contar con resultados que demuestren que la información permanece disponible después del reinicio.
+
+### 4.4. Preparación del despliegue remoto
+
+El equipo contempla Azure como entorno de destino. El diagrama de despliegue existente representa una propuesta de arquitectura y no debe interpretarse como una instalación final confirmada.
+
+Los datos definitivos que deben documentarse cuando el equipo complete el despliegue son:
+
+| Elemento | Dato que debe confirmarse |
+|---|---|
+| Servidor | Dirección IP o nombre DNS |
+| Flowable OSS | Dirección y puerto de acceso |
+| PostgreSQL | Dirección, puerto y base de datos |
+| Web Service Java | Dirección y puerto de acceso |
+| SQL Server | Dirección, puerto y base de datos |
+| External Worker | Direcciones de Flowable y del Web Service |
+| Interfaz propia | Dirección de acceso y configuración del proxy |
+| Seguridad | Configuración de credenciales y variables secretas |
+
+Las contraseñas, tokens y archivos `.env` reales deben mantenerse fuera del repositorio.
+
+### 4.5. Verificaciones de integración para EV4
+
+Las pruebas de integración deben respaldar los siguientes puntos:
+
+- Comunicación entre Flowable y el External Worker.
+- Comunicación entre el External Worker y el Web Service Java.
+- Comunicación entre el Web Service y SQL Server.
+- Ejecución de los procesos BPMN desde la interfaz propia.
+- Persistencia de los registros de negocio.
+- Recuperación de la información después de reiniciar los componentes.
+- Disponibilidad de los servicios mediante sus mecanismos de comprobación.
+
+Los resultados deben quedar respaldados por capturas o registros de pruebas. Las funcionalidades que aún no hayan sido verificadas deben identificarse como pendientes.
+
+### 4.6. Documentos relacionados
+
+Esta documentación se complementa con:
+
+- `Arquitectura/README.md`: índice y decisiones de arquitectura.
+- `ACUERDOS-INTEGRACION.md`: acuerdos técnicos, variables, tópicos y contratos REST.
+- `Docs/Manual-Tecnico.md`: instrucciones de instalación y configuración.
+- `BPMN/`: modelos de procesos editables e imágenes.
+- `Pruebas/`: resultados y evidencias de integración.
+- `Videos/Entrega-4/`: videos solicitados para la entrega.
+
+La documentación y los diagramas deben mantenerse actualizados de acuerdo con la configuración y el funcionamiento real de la solución.

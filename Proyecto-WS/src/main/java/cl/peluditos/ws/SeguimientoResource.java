@@ -1,3 +1,4 @@
+
 package cl.peluditos.ws;
 
 import jakarta.ws.rs.*;
@@ -8,6 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Path("leads/{id}/seguimientos")
@@ -21,6 +25,108 @@ public class SeguimientoResource {
         public String resultado;
     }
 
+    // CONSULTAR LOS SEGUIMIENTOS DE UN LEAD
+    @GET
+    public Response consultar(
+            @PathParam("id") int id) {
+
+        String verificarLead =
+                "SELECT id_lead FROM dbo.Leads WHERE id_lead = ?";
+
+        String consulta = """
+                SELECT id_seguimiento,
+                       id_lead,
+                       fecha,
+                       medio,
+                       comentario,
+                       resultado
+                FROM dbo.Seguimientos
+                WHERE id_lead = ?
+                ORDER BY fecha DESC, id_seguimiento DESC
+                """;
+
+        try (Connection connection = Database.getConnection()) {
+
+            // Comprobar que el lead existe
+            try (PreparedStatement verificar =
+                         connection.prepareStatement(verificarLead)) {
+
+                verificar.setInt(1, id);
+
+                try (ResultSet rs = verificar.executeQuery()) {
+                    if (!rs.next()) {
+                        return Response.status(Response.Status.NOT_FOUND)
+                                .entity(Map.of(
+                                        "error", "Lead no encontrado"))
+                                .build();
+                    }
+                }
+            }
+
+            // Consultar los seguimientos
+            List<Map<String, Object>> seguimientos =
+                    new ArrayList<>();
+
+            try (PreparedStatement statement =
+                         connection.prepareStatement(consulta)) {
+
+                statement.setInt(1, id);
+
+                try (ResultSet rs = statement.executeQuery()) {
+
+                    while (rs.next()) {
+
+                        Map<String, Object> seguimiento =
+                                new LinkedHashMap<>();
+
+                        seguimiento.put(
+                                "id_seguimiento",
+                                rs.getInt("id_seguimiento"));
+
+                        seguimiento.put(
+                                "id_lead",
+                                rs.getInt("id_lead"));
+
+                        seguimiento.put(
+                                "fecha",
+                                rs.getTimestamp("fecha") == null
+                                        ? null
+                                        : rs.getTimestamp("fecha").toString());
+
+                        seguimiento.put(
+                                "medio",
+                                rs.getString("medio"));
+
+                        seguimiento.put(
+                                "comentario",
+                                rs.getString("comentario"));
+
+                        seguimiento.put(
+                                "resultado",
+                                rs.getString("resultado"));
+
+                        seguimientos.add(seguimiento);
+                    }
+                }
+            }
+
+            return Response.ok(seguimientos).build();
+
+        } catch (SQLException e) {
+
+            System.err.println(
+                    "[WS] Error al consultar seguimientos: "
+                            + e.getMessage());
+
+            return Response.serverError()
+                    .entity(Map.of(
+                            "error",
+                            "No fue posible consultar los seguimientos"))
+                    .build();
+        }
+    }
+
+    // REGISTRAR UN NUEVO SEGUIMIENTO
     @POST
     public Response registrar(
             @PathParam("id") int id,
@@ -29,8 +135,10 @@ public class SeguimientoResource {
         if (seguimiento == null ||
                 seguimiento.medio == null ||
                 seguimiento.medio.isBlank()) {
+
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error",
+                    .entity(Map.of(
+                            "error",
                             "El campo medio es obligatorio"))
                     .build();
         }
@@ -48,23 +156,25 @@ public class SeguimientoResource {
 
         try (Connection connection = Database.getConnection()) {
 
+            // Comprobar que el lead existe
             try (PreparedStatement verificar =
-                    connection.prepareStatement(verificarLead)) {
+                         connection.prepareStatement(verificarLead)) {
 
                 verificar.setInt(1, id);
 
                 try (ResultSet rs = verificar.executeQuery()) {
                     if (!rs.next()) {
                         return Response.status(Response.Status.NOT_FOUND)
-                                .entity(Map.of("error",
-                                        "Lead no encontrado"))
+                                .entity(Map.of(
+                                        "error", "Lead no encontrado"))
                                 .build();
                     }
                 }
             }
 
+            // Insertar seguimiento
             try (PreparedStatement statement =
-                    connection.prepareStatement(insertar)) {
+                         connection.prepareStatement(insertar)) {
 
                 statement.setInt(1, id);
                 statement.setString(2, seguimiento.medio);
@@ -74,39 +184,55 @@ public class SeguimientoResource {
                 try (ResultSet rs = statement.executeQuery()) {
 
                     if (rs.next()) {
+
+                        Map<String, Object> respuesta =
+                                new LinkedHashMap<>();
+
+                        respuesta.put(
+                                "id_seguimiento",
+                                rs.getInt("id_seguimiento"));
+
+                        respuesta.put("id_lead", id);
+
+                        respuesta.put(
+                                "fecha",
+                                rs.getTimestamp("fecha").toString());
+
+                        respuesta.put(
+                                "medio",
+                                seguimiento.medio);
+
+                        respuesta.put(
+                                "comentario",
+                                seguimiento.comentario);
+
+                        respuesta.put(
+                                "resultado",
+                                seguimiento.resultado);
+
                         return Response.status(Response.Status.CREATED)
-                                .entity(Map.of(
-                                        "id_seguimiento",
-                                        rs.getInt("id_seguimiento"),
-                                        "id_lead", id,
-                                        "fecha",
-                                        rs.getTimestamp("fecha").toString(),
-                                        "medio", seguimiento.medio,
-                                        "comentario",
-                                        seguimiento.comentario == null
-                                                ? "" : seguimiento.comentario,
-                                        "resultado",
-                                        seguimiento.resultado == null
-                                                ? "" : seguimiento.resultado
-                                ))
+                                .entity(respuesta)
                                 .build();
                     }
                 }
             }
 
         } catch (SQLException e) {
+
             System.err.println(
                     "[WS] Error al registrar seguimiento: "
                             + e.getMessage());
 
             return Response.serverError()
-                    .entity(Map.of("error",
+                    .entity(Map.of(
+                            "error",
                             "No fue posible registrar el seguimiento"))
                     .build();
         }
 
         return Response.serverError()
-                .entity(Map.of("error",
+                .entity(Map.of(
+                        "error",
                         "No se pudo confirmar el seguimiento"))
                 .build();
     }

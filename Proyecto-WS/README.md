@@ -1,3 +1,4 @@
+
 # Proyecto-WS – Web Services Java
 
 Web Services REST de **Peluditos Pet Chile**, desarrollados con Java 21, Gradle, Jakarta REST, Jersey y servidor Grizzly.
@@ -29,6 +30,7 @@ El componente permite gestionar clientes potenciales (leads), seguimientos, clie
 Proyecto-WS/
 ├── BaseDatos-Java/
 ├── Evidencias-EV-3/
+├── Evidencia-EV-4/
 ├── Evidencias/
 │   └── Punta_a_Punta/
 ├── gradle/
@@ -53,6 +55,8 @@ Proyecto-WS/
 
 La carpeta `BaseDatos-Java` se mantiene como parte de la estructura del proyecto. Su contenido interno debe revisarse para documentar con precisión los archivos y recursos disponibles.
 
+La carpeta `Evidencia-EV-4` corresponde a las evidencias de la cuarta entrega. Se debe conservar la organización real de los archivos existentes en el repositorio.
+
 ## 3. Base de datos de negocio
 
 El servicio utiliza Microsoft SQL Server 2017 para almacenar la información relacionada con la gestión comercial de Peluditos Pet Chile.
@@ -74,28 +78,66 @@ Los scripts y recursos relacionados con la base de datos deben consultarse en lo
 
 La conexión con SQL Server se implementa mediante JDBC en la clase `Database.java`.
 
-La configuración de conexión documentada para el proyecto contempla los siguientes parámetros:
+La clase obtiene los parámetros de conexión mediante variables de entorno. Esto permite ejecutar el servicio en distintos equipos y servidores sin modificar el código fuente.
 
-- Servidor: `localhost`.
-- Puerto: `1433`.
+### 4.1. Variables de entorno
+
+| Variable | Descripción | Referencia local |
+|---|---|---|
+| `PELUDITOS_DB_HOST` | Servidor de SQL Server | `localhost` |
+| `PELUDITOS_DB_PORT` | Puerto de SQL Server | `1435` |
+| `PELUDITOS_DB_NAME` | Nombre de la base de datos | `DB_PeluditosPetChile` |
+| `PELUDITOS_DB_USER` | Usuario de SQL Server | `peluditos_java` |
+| `PELUDITOS_DB_PASSWORD` | Contraseña del usuario SQL Server | Configurar como secreto |
+| `PELUDITOS_WS_PORT` | Puerto de ejecución del servicio REST | `8081` |
+
+### 4.2. Configuración del entorno local
+
+Durante el desarrollo local del equipo se utiliza:
+
+- Servidor SQL Server: `localhost`.
+- Puerto SQL Server: `1435`.
 - Base de datos: `DB_PeluditosPetChile`.
 - Usuario: `peluditos_java`.
-- Contraseña: obtenida mediante la variable de entorno `PELUDITOS_DB_PASSWORD`.
+- Puerto del Web Service: `8081`.
 
-El README y el manual técnico contemplan las siguientes variables de entorno:
+El puerto `1435` corresponde a la configuración local utilizada durante las pruebas del proyecto.
 
-| Variable | Descripción |
-|---|---|
-| `PELUDITOS_DB_HOST` | Servidor de SQL Server. |
-| `PELUDITOS_DB_PORT` | Puerto de SQL Server. |
-| `PELUDITOS_DB_NAME` | Nombre de la base de datos. |
-| `PELUDITOS_DB_USER` | Usuario de SQL Server. |
-| `PELUDITOS_DB_PASSWORD` | Contraseña del usuario de SQL Server. |
-| `PELUDITOS_WS_PORT` | Puerto de ejecución del servicio REST. |
+**Importante:** la clase `Database.java` utiliza `1433` como puerto predeterminado cuando no se configura `PELUDITOS_DB_PORT`. Para ejecutar el servicio en el entorno local del equipo se debe establecer explícitamente el puerto `1435`.
 
-**Nota de configuración:** está pendiente revisar y alinear la implementación de `Database.java` con la configuración mediante variables de entorno documentada en este archivo. En particular, se debe comprobar cómo se obtienen el servidor, el puerto, la base de datos y el usuario.
+### 4.3. Configuración para Azure
 
-No se deben guardar contraseñas ni credenciales personales dentro del repositorio.
+Para el despliegue en Azure no se deben asumir los mismos valores del entorno local.
+
+El responsable del despliegue debe configurar las variables de entorno con los datos reales del servidor donde se encuentre SQL Server:
+
+- `PELUDITOS_DB_HOST`: dirección o nombre del servidor SQL Server.
+- `PELUDITOS_DB_PORT`: puerto TCP habilitado para SQL Server.
+- `PELUDITOS_DB_NAME`: `DB_PeluditosPetChile`.
+- `PELUDITOS_DB_USER`: usuario autorizado para la conexión.
+- `PELUDITOS_DB_PASSWORD`: contraseña configurada como secreto.
+- `PELUDITOS_WS_PORT`: puerto en el que se ejecutará el Web Service.
+
+El puerto de Azure debe confirmarse en la máquina virtual y en la configuración de red. No se debe asumir que será `1435` ni `1433` sin comprobarlo.
+
+La contraseña real no debe incorporarse a archivos del repositorio, capturas públicas ni documentación compartida.
+
+### 4.4. Archivo de ejemplo
+
+El archivo `.env.example` contiene valores de referencia para configurar el entorno. No debe contener contraseñas reales.
+
+Ejemplo para el entorno local:
+
+```env
+PELUDITOS_WS_PORT=8081
+PELUDITOS_DB_HOST=localhost
+PELUDITOS_DB_PORT=1435
+PELUDITOS_DB_NAME=DB_PeluditosPetChile
+PELUDITOS_DB_USER=peluditos_java
+PELUDITOS_DB_PASSWORD=CAMBIAR_POR_SECRETO_REAL
+```
+
+Este archivo sirve como referencia. Las variables deben configurarse en el entorno donde se ejecute el servicio.
 
 ## 5. Cómo ejecutar el servicio
 
@@ -113,18 +155,20 @@ Para ejecutar el componente se requiere:
 
 ### 5.2. Configuración en PowerShell
 
-Ejemplo de configuración de variables de entorno para la sesión actual:
+Ejemplo de configuración de variables de entorno para la sesión actual del entorno local:
 
 ```powershell
 $env:PELUDITOS_DB_HOST="localhost"
-$env:PELUDITOS_DB_PORT="1433"
+$env:PELUDITOS_DB_PORT="1435"
 $env:PELUDITOS_DB_NAME="DB_PeluditosPetChile"
-$env:PELUDITOS_DB_USER="USUARIO_SQL"
+$env:PELUDITOS_DB_USER="peluditos_java"
 $env:PELUDITOS_DB_PASSWORD="CONTRASEÑA_SQL"
 $env:PELUDITOS_WS_PORT="8081"
 ```
 
 Los valores de usuario y contraseña deben corresponder a las credenciales configuradas en SQL Server.
+
+Para Azure se deben reemplazar los valores locales por los datos reales del servidor de despliegue.
 
 ### 5.3. Compilar el proyecto
 
@@ -144,17 +188,15 @@ Desde la misma carpeta:
 
 Si no se configura `PELUDITOS_WS_PORT`, el servicio utiliza el puerto predeterminado `8081`.
 
-La dirección base del servicio es:
+La dirección base del servicio local es:
 
 ```text
 http://localhost:8081/api
 ```
 
-Si se configura el puerto `8082`, la dirección base será:
+Si se configura otro puerto, la dirección base debe ajustarse al puerto utilizado.
 
-```text
-http://localhost:8082/api
-```
+La clase `Main.java` configura el servidor para escuchar en las interfaces de red mediante `0.0.0.0`, lo que permite recibir conexiones desde otros equipos cuando la red y las reglas de seguridad lo autorizan.
 
 ### 5.5. Comprobar el funcionamiento
 
@@ -164,11 +206,16 @@ Abrir en el navegador:
 http://localhost:8081/api/health
 ```
 
-La respuesta esperada es:
+La respuesta JSON esperada es:
 
-```text
-Servicio Peluditos - Estado: OK
+```json
+{
+  "servicio": "peluditos-ws",
+  "estado": "ok"
+}
 ```
+
+Este endpoint comprueba que el Web Service está activo. No reemplaza la comprobación de conexión con SQL Server ni la verificación de Flowable.
 
 ## 6. Servicios REST implementados
 
@@ -308,6 +355,8 @@ Los mensajes de respuesta no deben exponer contraseñas ni información interna 
 
 Se incorpora `CorsFilter.java` para gestionar las solicitudes de origen cruzado (CORS) y permitir la comunicación entre la interfaz web y el servicio REST según la configuración del proyecto.
 
+Para el despliegue, los orígenes permitidos deben corresponder a las direcciones reales de la interfaz web. No se recomienda habilitar orígenes indiscriminadamente en un entorno público.
+
 ## 11. Integración con Flowable y External Workers
 
 El Web Service Java dispone de operaciones REST para integrarse con el proceso de negocio gestionado mediante Flowable OSS y External Workers.
@@ -321,6 +370,8 @@ La dirección `localhost` corresponde al equipo donde se ejecuta el servicio. Pa
 El servicio se ejecuta escuchando en las interfaces de red para permitir las conexiones autorizadas desde el equipo del otro integrante.
 
 La dirección base configurada para el Worker debe apuntar al equipo donde se ejecuta el Web Service Java, utilizando la conexión privada de Tailscale.
+
+En el entorno de despliegue, las direcciones de Tailscale o las direcciones locales de desarrollo deben sustituirse por las direcciones de red que correspondan a la infraestructura configurada.
 
 ### 11.2. Registro y cierre de leads
 
@@ -367,7 +418,7 @@ Se verificó que:
 Como parte de las pruebas conjuntas del equipo se realizaron las siguientes verificaciones:
 
 - Comunicación remota entre los equipos mediante Tailscale.
-- Acceso de Scarlet al endpoint de salud del Web Service Java.
+- Acceso de Scarlett al endpoint de salud del Web Service Java.
 - Configuración de la dirección del Web Service en el Worker mediante `WS_URL`.
 - Registro de leads desde el flujo de Flowable.
 - Persistencia de los leads en SQL Server.
@@ -383,6 +434,7 @@ Estas pruebas permitieron comprobar la comunicación entre Flowable, los Externa
 Las evidencias del componente se organizan en las siguientes carpetas del repositorio:
 
 - `Evidencias-EV-3/`
+- `Evidencia-EV-4/`
 - `Evidencias/Punta_a_Punta/`
 - `BaseDatos-Java/` (contenido pendiente de revisión).
 
@@ -444,7 +496,8 @@ El componente cuenta con los siguientes avances documentados:
 - Generación y consulta de oportunidades comerciales.
 - Registro de resultados comerciales.
 - Configuración CORS.
-- Puerto configurable mediante `PELUDITOS_WS_PORT`, según la configuración documentada.
+- Puerto configurable mediante `PELUDITOS_WS_PORT`.
+- Variables de conexión a SQL Server configurables mediante variables de entorno.
 - Validaciones y manejo de errores.
 - Evidencias de compilación, ejecución y pruebas de persistencia.
 - Pruebas de comunicación remota mediante Tailscale.
@@ -455,23 +508,106 @@ Las pruebas realizadas permitieron validar la comunicación entre los componente
 
 La validación global de todos los recorridos de punta a punta del proyecto, incluyendo la interfaz, los procesos completos y la gestión de pedidos, corresponde a las pruebas generales de integración del equipo.
 
-## 14. Pendientes de configuración y continuidad
+## 14. Preparación del entorno y despliegue
 
-Para preparar nuevamente el entorno de desarrollo y continuar trabajando en el componente se consideran las siguientes tareas:
+### 14.1. Preparación de SQL Server
 
-- Revisar el contenido de la carpeta `BaseDatos-Java`.
-- Preparar la base de datos `DB_PeluditosPetChile` en el nuevo entorno cuando corresponda.
-- Configurar el usuario y los permisos de acceso a SQL Server.
-- Comprobar la conectividad TCP/IP mediante el puerto `1433`.
-- Revisar la implementación de variables de entorno en `Database.java` y alinearla con la documentación.
-- Comprobar la conexión JDBC desde el proyecto Java.
-- Ejecutar las pruebas de compilación y funcionamiento en el nuevo entorno.
-- Mantener las evidencias y documentación actualizadas en GitHub.
+Para ejecutar el Web Service se necesita que SQL Server esté disponible y que exista la base de datos `DB_PeluditosPetChile`.
+
+Antes de iniciar el servicio se debe comprobar:
+
+- Que SQL Server esté iniciado.
+- Que la base de datos exista.
+- Que el usuario `peluditos_java` tenga permisos de acceso.
+- Que el puerto TCP configurado esté habilitado.
+- Que el equipo donde se ejecuta Java pueda alcanzar el servidor SQL Server.
+- Que las variables de conexión estén configuradas correctamente.
 
 La instalación de las herramientas de desarrollo en un nuevo equipo no implica que la base de datos original se encuentre recuperada. La reconstrucción o recuperación de la base de datos debe verificarse por separado.
 
+### 14.2. Preparación del Web Service
+
+Desde la carpeta `Proyecto-WS`:
+
+1. Comprobar la instalación de Java 21.
+2. Configurar las variables de entorno.
+3. Comprobar la conexión con SQL Server.
+4. Ejecutar `.\gradlew.bat build`.
+5. Ejecutar `.\gradlew.bat run`.
+6. Consultar `/api/health`.
+7. Probar una operación REST que consulte o registre información en la base de datos.
+
+### 14.3. Preparación para el despliegue en Azure
+
+Para ejecutar el Web Service en Azure se deben configurar los parámetros correspondientes al entorno de destino.
+
+El responsable del despliegue debe confirmar:
+
+- Dirección o nombre del servidor SQL Server.
+- Puerto TCP de SQL Server.
+- Nombre de la base de datos.
+- Usuario de conexión.
+- Contraseña almacenada como secreto.
+- Puerto de ejecución del Web Service.
+- Reglas de red y firewall necesarias.
+- Dirección desde la que Flowable y los Workers accederán al Web Service.
+- Dirección desde la que la interfaz web accederá al servicio.
+
+Los valores locales `localhost` y `1435` no deben utilizarse automáticamente en Azure. Se deben reemplazar por los valores reales de la infraestructura desplegada.
+
+No se deben publicar credenciales, contraseñas ni archivos `.env` con datos reales en GitHub.
+
+### 14.4. Orden general de inicio
+
+El orden de inicio debe respetar las dependencias entre componentes:
+
+1. Iniciar y comprobar SQL Server.
+2. Comprobar que `DB_PeluditosPetChile` esté disponible.
+3. Configurar las variables de entorno del Web Service.
+4. Iniciar el Web Service Java.
+5. Comprobar el endpoint `/api/health`.
+6. Comprobar una operación que utilice SQL Server.
+7. Iniciar o comprobar Flowable.
+8. Iniciar los External Workers.
+9. Iniciar o publicar la interfaz web.
+10. Ejecutar las pruebas de integración entre los componentes.
+
+El orden definitivo puede ajustarse según la infraestructura y la configuración de despliegue del equipo.
+
+### 14.5. Verificaciones posteriores al despliegue
+
+Después de desplegar el servicio se debe comprobar:
+
+- Que el Web Service responda en su dirección publicada.
+- Que `/api/health` devuelva el estado `ok`.
+- Que el Web Service pueda conectarse a SQL Server.
+- Que las consultas REST funcionen desde la red de despliegue.
+- Que los registros nuevos se almacenen en SQL Server.
+- Que Flowable pueda comunicarse con los Workers.
+- Que los Workers puedan invocar las operaciones del Web Service.
+- Que la interfaz web pueda acceder a los servicios necesarios.
+
+La comprobación de `/api/health` por sí sola no demuestra que SQL Server o Flowable estén disponibles.
+
+## 15. Continuidad y mantenimiento
+
+Para continuar trabajando en el componente se consideran las siguientes tareas:
+
+- Revisar el contenido de la carpeta `BaseDatos-Java`.
+- Mantener los scripts de creación y preparación de la base de datos.
+- Mantener actualizado el archivo `.env.example` con valores de ejemplo, sin secretos.
+- Comprobar que la documentación coincida con la implementación de `Database.java`.
+- Ejecutar las pruebas de compilación y funcionamiento después de cambios.
+- Mantener las evidencias de las pruebas en las carpetas correspondientes.
+- Documentar los parámetros utilizados en los distintos entornos.
+- Mantener actualizadas las instrucciones de instalación y ejecución.
+- Verificar la persistencia de los datos después de reiniciar los componentes.
+
 ---
 
-**Proyecto grupal: Peluditos Pet Chile**  
+**Proyecto grupal:** Peluditos Pet Chile  
 **Repositorio:** https://github.com/scarlettpaz85-blip/proyecto-grupal  
-**Rama principal:** `main`
+**Componente:** Proyecto-WS – Web Services Java  
+**Base de datos:** `DB_PeluditosPetChile`  
+**Puerto local SQL Server:** `1435`  
+**Puerto local Web Service:** `8081`
